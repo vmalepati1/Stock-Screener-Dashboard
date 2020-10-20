@@ -20,3 +20,4 @@ selenium==3.141.0
 git+https://github.com/PaulRenvoise/yfinance@e28283a964a362ed9360966501da07a342ad21c6
 gunicorn
 email_validator
+xlrd
