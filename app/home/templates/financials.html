@@ -67,7 +67,7 @@
 				  <th scope="col">Watchlist</th>
 				</tr>
 			  </thead>
-			  <tbody class="list">
+			  <tbody id="financialsContainer" class="list">
 				{% for row in financials_rows %}
 					<tr>
 					  <td class="symbol">
@@ -83,31 +83,27 @@
 					  <td class="v-ebitda text-right">{{ row.valueToEbitda }}</td>
 					  <td class="d-ebtida text-right">{{ row.debtToEbitda }}</td>
 					  <td class="beta text-right">{{ row.beta }}</td>
-					  <td class="gross-margin text-right">{{ row.grossMargin }}%</td>
-					  <td class="operating-margin text-right">{{ row.operatingMargin }}%</td>
-					  <td class="net-margin text-right">{{ row.netMargin }}%</td>
+					  <td class="gross-margin text-right">{{ row.grossMargin }}</td>
+					  <td class="operating-margin text-right">{{ row.operatingMargin }}</td>
+					  <td class="net-margin text-right">{{ row.netMargin }}</td>
 					  
-					  {% if row.dividendYield != 'NA' %}
-						<td class="div-yield text-right">{{ row.dividendYield }}%</td>
-					  {% else %}
-						<td class="div-yield text-right">NA</td>
-					  {% endif %}
+					  <td class="div-yield text-right">{{ row.dividendYield }}</td>
 					  
 					  <td class="current-ratio text-right">{{ row.currentRatio }}</td>
 					  
 					  <td class="roe text-right">
 						  {% if row.ROE.startswith('-') %}
-							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.ROE }}%</span>
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.ROE }}</span>
 						  {% else %}
-							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.ROE }}%</span>
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.ROE }}</span>
 						  {% endif %}
 					  </td>
 					  
 					  <td class="return text-right">
 						  {% if row.return1y.startswith('-') %}
-							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.return1y }}%</span>
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.return1y }}</span>
 						  {% else %}
-							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.return1y }}%</span>
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.return1y }}</span>
 						  {% endif %}
 					  </td>
 					 
@@ -152,6 +148,27 @@
 		window.location.pathname = 'financials/' 
 			+ sector_selector.options[sector_selector.selectedIndex].value;
 	};
+</script>
+
+<script>
+	function searchLimiter() {
+	  var input, filter, ul, li, a, i, txtValue;
+	  input = document.getElementById('searchBar');
+	  filter = input.value.toUpperCase();
+	  ul = document.getElementById("financialsContainer");
+	  li = ul.getElementsByTagName("tr");
+
+	  // Loop through all list items, and hide those who don't match the search query
+	  for (i = 0; i < li.length; i++) {
+		a = li[i].getElementsByClassName("symbol")[0];
+		txtValue = a.textContent || a.innerText;
+		if (txtValue.toUpperCase().indexOf(filter) > -1) {
+		  li[i].style.display = "";
+		} else {
+		  li[i].style.display = "none";
+		}
+	  }
+	}
 </script>
 
 {% endblock javascripts %}

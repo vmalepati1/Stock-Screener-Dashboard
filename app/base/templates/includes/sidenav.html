@@ -1,3 +1,24 @@
+<div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+	 <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+		<div class="modal-content">
+		   <div class="modal-header">
+			  <h4 class="modal-title" id="modal-title-default">Product information</h4>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">×</span>
+			  </button>
+		   </div>
+		   <div class="modal-body">
+			  <p>
+			  This is an administration dashboard meant to help you manage your portfolio within specific sectors.
+			  It provides tools that enable you to actively manage your watchlist, view the top gainers within your sector,
+			  see what equities are being purchased by hedge funds, view insider trading reports, and analyze financials.
+			  </p>
+		   </div>
+		</div>
+	 </div>
+  </div>
+
+
 <nav class="sidenav navbar navbar-vertical  fixed-left  navbar-expand-xs navbar-light bg-white" id="sidenav-main">
   <div class="scrollbar-inner">
     <!-- Brand -->
@@ -58,6 +79,14 @@
               <span class="nav-link-text">Insider trading</span>
             </a>
           </li>
+		  
+		  <li class="nav-item">
+            <a class="nav-link {% if 'financials' in segment %} active {% endif %}" 
+               href="/financials/{{ current_user.sector }}">
+              <i class="ni ni-archive-2 text-pink"></i>
+              <span class="nav-link-text">Financials</span>
+            </a>
+          </li>
 
 		  <li class="nav-item">
 			<a class="nav-link" href="{{ url_for('base_blueprint.logout') }}">
@@ -76,9 +105,7 @@
         <!-- Navigation -->
         <ul class="navbar-nav mb-md-3">
           <li class="nav-item">
-            <a class="nav-link" 
-               target="_blank" 
-               href="https://appseed.us/admin-dashboards/flask-dashboard-argon-pro">
+            <a class="nav-link" data-toggle="modal" data-target="#modal-default">
               <i class="ni ni-spaceship"></i>
               <span class="nav-link-text">Product Information</span>
             </a>

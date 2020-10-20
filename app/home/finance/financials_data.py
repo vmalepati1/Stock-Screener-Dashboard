@@ -20,14 +20,14 @@ def beautify_ratio(ratio):
 
 def beautify_percentage(percentage):
     if percentage is not None:
-        return str(round(100*percentage, 2))
+        return str(round(100*percentage, 2)) + '%'
     else:
         return 'NA'
 
 def load_financials(company_name, ticker_name, 
                     pe_industry, ps_industry, pbv_industry,
                     vebtida_industry, beta_industry, margin_industry):
-    
+
     ticker = yf.Ticker(ticker_name)
     info = ticker.info
     financials = ticker.financials
@@ -155,6 +155,29 @@ def load_financials(company_name, ticker_name,
                         0.175*calculate_score_higher(grossMargin, gross_margin_i) + 0.175*calculate_score_higher(operatingMargin, operating_margin_i) + \
                         0.175*calculate_score_higher(netMargin, net_margin_i) + 0.175*calculate_score_higher(ROE, ROE_i)
 
+##        print(pe)
+##        print(peg)
+##        print(ps)
+##        print(pb)
+##        print(valueToEbitda)
+##        print(beta)
+##        print(grossMargin)
+##        print(operatingMargin)
+##        print(netMargin)
+##        print(ROE)
+##
+##        print(pe_i)
+##        print(peg_i)
+##        print(ps_i)
+##        print(pb_i)
+##        print(v_ebitda_i)
+##        print(beta_i)
+##        print(gross_margin_i)
+##        print(operating_margin_i)
+##        print(net_margin_i)
+##        print(ROE_i)
+##        
+##        print(industry_score)
 ##        if math.isnan(industry_score):
 ##            industry_score = 'NA'
 ##        else:

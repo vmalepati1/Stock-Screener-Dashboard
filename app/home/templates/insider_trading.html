@@ -55,7 +55,7 @@
 				  <th scope="col">Watchlist</th>
 				</tr>
 			  </thead>
-			  <tbody class="list">
+			  <tbody id="insiderTradesContainer" class="list">
 				{% for row in insider_trade_rows %}
 					<tr>
 					  <td class="symbol">
@@ -111,6 +111,27 @@
 		window.location.pathname = 'insider_trading/' 
 			+ sector_selector.options[sector_selector.selectedIndex].value;
 	};
+</script>
+
+<script>
+	function searchLimiter() {
+	  var input, filter, ul, li, a, i, txtValue;
+	  input = document.getElementById('searchBar');
+	  filter = input.value.toUpperCase();
+	  ul = document.getElementById("insiderTradesContainer");
+	  li = ul.getElementsByTagName("tr");
+
+	  // Loop through all list items, and hide those who don't match the search query
+	  for (i = 0; i < li.length; i++) {
+		a = li[i].getElementsByClassName("symbol")[0];
+		txtValue = a.textContent || a.innerText;
+		if (txtValue.toUpperCase().indexOf(filter) > -1) {
+		  li[i].style.display = "";
+		} else {
+		  li[i].style.display = "none";
+		}
+	  }
+	}
 </script>
 
 {% endblock javascripts %}

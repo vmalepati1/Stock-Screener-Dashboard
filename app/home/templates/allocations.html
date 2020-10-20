@@ -39,72 +39,74 @@
 					<div class="text-muted mt-1 mb-3">
 						See the optimal allocations for your portfolio.
 					</div>
-					<div class="row align-items-center justify-content-center">
-						<div class="col-lg-3 col-md-6">
-							<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
-								<div class="card-body">
-								  <div class="row">
-									<div class="col">
-									  <h5 class="card-title text-uppercase text-muted mb-0">Expected Return</h5>
-										{% if expected_return < 0 %}
-										<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ (100*expected_return)|round(2) }}%</span>
-										{% else %}
-											<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ (100*expected_return)|round(2) }}%</span>
-										{% endif %}
-									</div>
-									<div class="col-auto">
-										  {% if expected_return < 0 %}
-											<div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-										  {% else %}
-											<div class="icon icon-shape bg-success text-white rounded-circle shadow">
-										  {% endif %}
-										<i class="fas fa-chart-bar"></i>
+					{% if allocations_data is not none and stats is not none %}
+						<div class="row align-items-center justify-content-center">
+							<div class="col-lg-3 col-md-6">
+								<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+									<div class="card-body">
+									  <div class="row">
+										<div class="col">
+										  <h5 class="card-title text-uppercase text-muted mb-0">Expected Return</h5>
+											{% if stats[0] < 0 %}
+											<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ (100*stats[0])|round(2) }}%</span>
+											{% else %}
+												<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ (100*stats[0])|round(2) }}%</span>
+											{% endif %}
+										</div>
+										<div class="col-auto">
+											  {% if stats[0] < 0 %}
+												<div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+											  {% else %}
+												<div class="icon icon-shape bg-success text-white rounded-circle shadow">
+											  {% endif %}
+											<i class="fas fa-chart-bar"></i>
+										  </div>
+										</div>
 									  </div>
 									</div>
-								  </div>
+								</div>
+							</div>
+							
+							<div class="col-lg-3 col-md-6">
+								<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+									<div class="card-body">
+									  <div class="row">
+										<div class="col">
+										  <h5 class="card-title text-uppercase text-muted mb-0">Volatility</h5>
+										  <span class="text-danger mr-2">{{ (100*stats[1])|round(2) }}%</span>
+										</div>
+										<div class="col-auto">
+										  <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+											<i class="ni ni-sound-wave"></i>
+										  </div>
+										</div>
+									  </div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="col-lg-3 col-md-6">
+								<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+									<div class="card-body">
+									  <div class="row">
+										<div class="col">
+										  <h5 class="card-title text-uppercase text-muted mb-0">Sharpe Ratio</h5>
+										  <span class="text-info mr-2">{{ stats[2]|round(2) }}</span>
+										</div>
+										<div class="col-auto">
+										  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+											<i class="fas fa-percent"></i>
+										  </div>
+										</div>
+									  </div>
+									</div>
 								</div>
 							</div>
 						</div>
-						
-						<div class="col-lg-3 col-md-6">
-							<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
-								<div class="card-body">
-								  <div class="row">
-									<div class="col">
-									  <h5 class="card-title text-uppercase text-muted mb-0">Volatility</h5>
-									  <span class="text-danger mr-2">{{ (100*volatility)|round(2) }}%</span>
-									</div>
-									<div class="col-auto">
-									  <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-										<i class="ni ni-sound-wave"></i>
-									  </div>
-									</div>
-								  </div>
-								</div>
-							</div>
-						</div>
-						
-						<div class="col-lg-3 col-md-6">
-							<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
-								<div class="card-body">
-								  <div class="row">
-									<div class="col">
-									  <h5 class="card-title text-uppercase text-muted mb-0">Sharpe Ratio</h5>
-									  <span class="text-info mr-2">{{ sharpe_ratio|round(2) }}</span>
-									</div>
-									<div class="col-auto">
-									  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-										<i class="fas fa-percent"></i>
-									  </div>
-									</div>
-								  </div>
-								</div>
-							</div>
-						</div>
-					</div>
+					{% endif %}
 				</div>
 				<div class="card-body">
-					{% if current_user.watchlist.split()|length <= 0 %}
+					{% if allocations_data is none %}
 						<div class="text-center">
 							<span class="text-info">Your watchlist is currently empty. Add symbols <a href="/watchlist/1d" class="button">here</a></span>
 						</div>
@@ -128,15 +130,6 @@
 
 	<script src="/static/assets/vendor/clipboard/dist/clipboard.min.js"></script>
 
-	<script>
-		var time_frame_selector = document.getElementById("timeframeSelect");
-		
-		time_frame_selector.onchange = function() {
-			window.location.pathname = 'watchlist/' 
-				+ time_frame_selector.options[time_frame_selector.selectedIndex].value;
-		};
-	</script>
-
 	<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
 	<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
 	
@@ -147,7 +140,7 @@
 	<script type="text/javascript" src="/static/assets/vendor/chartjs-plugin-colorschemes/chartjs-plugin-colorschemes.min.js"></script>
 	-->
 	
-	{% if allocations_data %}
+	{% if allocations_data is not none %}
 		<script>
 			var ctx = document.getElementById('chart-allocations');
 			
@@ -170,5 +163,10 @@
 			});
 		</script>
 	{% endif %}
+	
+	<script>
+		function searchLimiter() {
+		}
+	</script>
 
 {% endblock javascripts %}

@@ -104,8 +104,7 @@ def allocations():
             'labels': current_user.watchlist.split()
         }
 
-    return render_template('allocations.html', segment='allocations', allocations_data=allocations_data, expected_return=stats[0], volatility=stats[1],
-                           sharpe_ratio=stats[2])
+    return render_template('allocations.html', segment='allocations', allocations_data=allocations_data, stats=stats)
 
 @blueprint.route('/hedge_funds/<string:sector>',  methods=['GET', 'POST'])
 @login_required
