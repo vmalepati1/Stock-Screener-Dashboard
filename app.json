@@ -1,0 +1,13 @@
+{
+  "name": "Stock Screener Dashboard",
+  "description": "Scans for stocks that fit our investment strategy criteria",
+  "image": "heroku/python",
+  "repository": "https://github.com/vmalepati1/Stock-Screener-Dashboard",
+  "keywords": ["python", "flask" ],
+  "addons": [ "heroku-postgresql" ],
+  "env": {
+	"FLASK_APP": "run.py"
+  },
+  "environments": {
+  }
+}
