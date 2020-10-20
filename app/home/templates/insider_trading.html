@@ -1,0 +1,116 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Insider Trading {% endblock title %}
+
+{% block content %}
+
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Insider Trading</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="/index"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Insider Trading</a></li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+	<div class="row">
+	  <div class="col">
+		<div class="card">
+		  <!-- Card header -->
+		  <div class="card-header border-0">
+			<div class="d-flex align-items-center justify-content-between">
+				<h3 class="mr-auto mb-0">Recent Insider Trades in your Sector</h3>
+				
+				<div>
+					  <select class="form-control" id="sectorSelect" onchange="location = this.value;">
+						{% for d in sector_select_data %}
+						<option value="{{ d.name }}" {% if d.name == sector %}selected="selected"{% endif %}>{{ d.name }}</option>
+						{% endfor %}
+					  </select>
+				  </div>
+			</div>
+		  </div>
+		  <!-- Light table -->
+		  <div class="table-responsive">
+			<table class="table align-items-center table-flush">
+			  <thead class="thead-light">
+				<tr>
+				  <th scope="col" class="sort" data-sort="symbol">Symbol</th>
+				  <th scope="col" class="sort" data-sort="name">Company Name</th>
+				  <th scope="col" class="sort" data-sort="title">Insider Title</th>
+				  <th scope="col" class="sort" data-sort="price">Price</th>
+				  <th scope="col" class="sort" data-sort="quantity">Quantity Bought</th>
+				  <th scope="col" class="sort" data-sort="owned">Shares Owned</th>
+				  <th scope="col">Watchlist</th>
+				</tr>
+			  </thead>
+			  <tbody class="list">
+				{% for row in insider_trade_rows %}
+					<tr>
+					  <td class="symbol">
+						<a href="https://finance.yahoo.com/quote/{{ row.ticker }}" target=”_blank”>{{ row.ticker }}</a>
+					  </td>
+					  
+					  <td class="name">{{ row.name }}</td>
+					  
+					  <td class="title">{{ row.title }}</td>
+					  
+					  <td class="price text-right">{{ row.price }} {{ row.currency }}</td>
+					  
+					  <td class="quantity text-right">{{ row.quantity_bought }}</td>
+					  
+					  <td class="owned text-right">{{ row.shares_owned }}</td>
+					  
+					  <td class="text-center">
+						<form role="form" method="post" action="">
+							{% if row.ticker in current_user.watchlist.split() %}
+								<button name="remove" value="{{ row.ticker }}" class="btn btn-icon btn-danger" type="submit">
+									<span class="btn-inner--icon"><i class="ni ni-fat-delete"></i></span>
+								</button>
+							{% else %}
+								<button name="add" value="{{ row.ticker }}" class="btn btn-icon btn-primary" type="submit">
+									<span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+								</button>
+							{% endif %}
+						</form>
+					  </td>
+
+					</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+    {% include "includes/footer.html" %}
+
+  </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+
+<script>
+	var sector_selector = document.getElementById("sectorSelect");
+	
+	sector_selector.onchange = function() {
+		window.location.pathname = 'insider_trading/' 
+			+ sector_selector.options[sector_selector.selectedIndex].value;
+	};
+</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,190 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block content %}
+
+<div class="header pb-6 d-flex align-items-center" 
+     style="min-height: 500px; background-image: url(/static/assets/img/theme/profile-cover.jpg); background-size: cover; background-position: center top;">
+  <!-- Mask -->
+  <span class="mask bg-gradient-default opacity-8"></span>
+  <!-- Header container -->
+  <div class="container-fluid d-flex align-items-center">
+    <div class="row">
+      <div class="col-lg-7 col-md-10">
+        <h1 class="display-2 text-white">
+          Hello {{  current_user.username }}
+        </h1>
+        <p class="text-white mt-0 mb-5">This is your profile page. You can see the progress you've made with your work and manage your projects or assigned tasks</p>
+        <a href="#!" class="btn btn-neutral">Edit profile</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--6">
+  <div class="row">
+    <div class="col-xl-4 order-xl-2">
+      <div class="card card-profile">
+        <img src="/static/assets/img/theme/img-1-1000x600.jpg" alt="Image placeholder" class="card-img-top">
+        <div class="card-body pt-0">
+		  <div class="row justify-content-center mt-2">
+			  <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+				<i class="ni ni-single-02"></i>
+			  </div>
+		  </div>
+          <div class="row">
+            <div class="col">
+              <div class="card-profile-stats d-flex justify-content-center">
+                <div>
+                  <span class="heading">{{ 0 if not current_user.watchlist else current_user.watchlist.split()|length }}</span>
+                  <span class="description">stocks being watched</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <h5 class="h3">
+              {{  current_user.username }}
+            </h5>
+            <div class="h5 font-weight-300">
+              {{  current_user.email }}
+            </div>
+            <div class="h5 mt-4">
+              <i class="ni business_briefcase-24 mr-2"></i>{{ current_user.sector }} Manager
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8 order-xl-1">
+      <div class="card">
+        <div class="card-header">
+          <div class="row align-items-center">
+            <div class="col-8">
+              <h3 class="mb-0">Edit profile </h3>
+            </div>
+            <div class="col-4 text-right">
+              <a href="#!" class="btn btn-sm btn-primary">Settings</a>
+            </div>
+          </div>
+		  <div class="text-muted text-center">
+				{% if success %}
+				  <span class="text-success">{{ success | safe }}</span>
+				{% elif msg %}
+					<span class="text-danger">{{ msg | safe }}</span>
+				{% endif %}
+		   </div>
+        </div>
+        <div class="card-body">
+          <form method="post" action="">
+		          {% from "includes/_formhelpers.html" import render_errors %}
+
+                  {{ form.hidden_tag() }}
+				  
+                  <h6 class="heading-small text-muted mb-4">{{ 'User information - {0}'.format(current_user.id) }}</h6>
+				  
+				  <div class="pl-lg-4">
+					  <div class="row">
+						<div class="col-lg-6">
+						  <div class="form-group">
+							<label class="form-control-label" for="input-username">Username</label>
+							{{ form.username(value=current_user.username, id="input-username", class="form-control") }}
+						  </div>
+						  {{ render_errors(form.username) }}
+						</div>
+						<div class="col-lg-6">
+						  <div class="form-group">
+							<label class="form-control-label" for="input-email">Email address</label>
+							{{ form.email(value=current_user.email, id="input-email", class="form-control") }}
+						  </div>
+						  {{ render_errors(form.email) }}
+						</div>
+					  </div>
+					  <div class="row">
+						<div class="col-lg-6">
+						  <div class="form-group">
+							<label class="form-control-label" for="input-first-name">First name</label>
+							{{ form.first_name(value=current_user.first_name, id="input-first-name", class="form-control") }}
+						  </div>
+						  {{ render_errors(form.first_name) }}
+						</div>
+						<div class="col-lg-6">
+						  <div class="form-group">
+							<label class="form-control-label" for="input-last-name">Last name</label>
+							{{ form.last_name(value=current_user.last_name, id="input-last-name", class="form-control") }}
+						  </div>
+						  {{ render_errors(form.last_name) }}
+						</div>
+					  </div>
+				  </div>
+				  
+				  <hr class="my-4" />
+				  <h6 class="heading-small text-muted mb-4">Management Information</h6>
+				  <div class="pl-lg-4">
+					  <div class="row">
+						<div class="col-md-12">
+						  <div class="form-group">
+								<label for="input-sector">Sector</label>
+								<select class="form-control" name="sector" id="input-sector">
+									{% set default_value = current_user.sector %}
+									{% for d in sector_select_data %}
+									<option value="{{ d.name }}" {% if d.name == default_value %}selected="selected"{% endif %}>{{ d.name }}</option>
+									{% endfor %}
+								</select>
+						  </div>
+						</div>
+					  </div>
+				  </div>
+				  
+                  <div class="text-center">
+                     <button type="submit" name="save" class="btn btn-primary my-4">Save edits</button>
+                  </div>
+                  <!--
+                     <div class="pl-lg-4">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="input-username">Username</label>
+                                            <input type="text" id="input-username" class="form-control form-control-alternative" 
+                                                   placeholder="Username" value="{{ current_user.username }}">
+                                        </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="input-email">Email address</label>
+                                            <input type="email" id="input-email" class="form-control form-control-alternative" 
+                                                   placeholder="Email" value="{{ current_user.email }}">
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="input-first-name">First name</label>
+                                            <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="Lucky">
+                                        </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="input-last-name">Last name</label>
+                                            <input type="text" id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="Jesse">
+                                        </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                     -->
+               </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "includes/footer.html" %}
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

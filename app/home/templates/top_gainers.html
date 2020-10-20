@@ -1,0 +1,181 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Top gainers {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-8 pt-4 pt-md-4">
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row align-items-center justify-content-between">
+			  
+				<div class="col-xl-4 col-lg-6">
+					<h6 class="h2 text-white d-inline-block mb-0">Top gainers</h6>
+					<nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+					  <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+						<li class="breadcrumb-item"><a href="/index"><i class="fas fa-home"></i></a></li>
+						<li class="breadcrumb-item"><a href="#">Top gainers</a></li>
+					  </ol>
+					</nav>
+				</div>
+				
+				<div class="col-xl-3 col-lg-6">
+				  <div class="card card-stats mb-4 mb-xl-0">
+					<div class="card-body">
+					  <div class="row">
+						<div class="col">
+						  <h5 class="card-title text-uppercase text-muted mb-0">Overall Sector ({{ SPDR_ETF }})</h5>
+						  <span class="h2 font-weight-bold mb-0">{{ SPDR_price|round(2) }} USD</span>
+						</div>
+						<div class="col-auto">
+						  {% if SPDR_change < 0 %}
+							<div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+						  {% else %}
+							<div class="icon icon-shape bg-success text-white rounded-circle shadow">
+						  {% endif %}
+							<i class="fas fa-chart-bar"></i>
+						  </div>
+						</div>
+					  </div>
+					  <p class="mt-3 mb-0 text-muted text-sm">
+						{% if SPDR_change < 0 %}
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ (100*SPDR_change)|round(2) }}%</span>
+						{% else %}
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ (100*SPDR_change)|round(2) }}%</span>
+						{% endif %}
+						<span class="text-nowrap">Over {{ time_frame }}</span>
+					  </p>
+					</div>
+				  </div>
+				</div>
+				
+				<div class="col-xl-4 col-lg-6">
+				  <div class="card card-stats mb-4 mb-xl-0">
+				  </div>
+				</div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+
+      <div class="row">
+        <div class="col">
+          <div class="card shadow">
+            <div class="card-header bg-transparent">
+
+			  <div class="d-flex">
+				  <div class="mr-auto">
+					<h3 class="mb-0">Top gainers</h3>
+					<div class="text-muted text-center mt-1 mb-2">
+						See what's moving in your sector.
+					</div>
+				  </div>
+				  <div class="mr-2">
+					<select class="form-control" id="timeframeSelect">
+						{% for d in time_frame_select_data %}
+						<option value="{{ d.name }}" {% if d.name == time_frame %}selected="selected"{% endif %}>{{ d.name }}</option>
+						{% endfor %}
+					</select>
+				  </div>
+				  <div class="ml-2">
+					  <select class="form-control" id="sectorSelect" onchange="location = this.value;">
+						{% for d in sector_select_data %}
+						<option value="{{ d.name }}" {% if d.name == sector %}selected="selected"{% endif %}>{{ d.name }}</option>
+						{% endfor %}
+					  </select>
+				  </div>
+			  </div>
+            </div>
+            <div class="card-body">
+				<div id="topGainersGrid" class="row icon-examples">
+					{% for stock in gainers %}
+						<div class="col-lg-3 col-md-6 mb-4" style="display: flex;">
+							<div class="card card-stats" style="align-items: stretch;">
+								<!-- Card body -->
+								<div class="card-body">
+									
+									<div class="row">
+										<div class="col">
+											<h5 class="card-title text-uppercase text-muted mb-0">{{ stock.ticker }}</h5>
+											<h6 class="card-title text-uppercase text-muted mb-0">({{ stock.company }})</h6>
+											<span class="h2 font-weight-bold mb-0">{{ stock.last_price|round(2) }} {{ stock.currency }}</span>
+										</div>
+										<div class="col-auto">
+											<div class="icon icon-shape bg-info text-white rounded-circle shadow">
+												<i class="fas fa-percent"></i>
+											</div>
+										</div>
+									</div>
+									<p class="mt-3 mb-0 text-sm">
+										{% if stock.change < 0 %}
+											<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ (100*stock.change)|round(2) }}%</span>
+										{% else %}
+											<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ (100*stock.change)|round(2) }}%</span>
+										{% endif %}
+										<span class="text-nowrap">Over {{ time_frame }}</span>
+									</p>
+
+								</div>
+								
+								<div class="text-center">
+									<form role="form" method="post" action="">
+										{% if stock.ticker in current_user.watchlist.split() %}
+											<button name="remove" value="{{ stock.ticker }}" class="btn btn-icon btn-danger btn-sm mb-3" type="submit">
+												<span class="btn-inner--icon"><i class="ni ni-fat-delete"></i></span>
+												<span class="btn-inner--text">Remove from watchlist</span>
+											</button>
+										{% else %}
+											<button name="add" value="{{ stock.ticker }}" class="btn btn-icon btn-primary btn-sm mb-3" type="submit">
+												<span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+												<span class="btn-inner--text">Add to watchlist</span>
+											</button>
+										{% endif %}
+									</form>
+								</div>
+								
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+
+<script src="/static/assets/vendor/clipboard/dist/clipboard.min.js"></script>
+
+<script>
+	var time_frame_selector = document.getElementById("timeframeSelect");
+	var sector_selector = document.getElementById("sectorSelect");
+	
+	time_frame_selector.onchange = function() {
+		window.location.pathname = 'top_gainers/' 
+			+ sector_selector.options[sector_selector.selectedIndex].value 
+			+ '/' + time_frame_selector.options[time_frame_selector.selectedIndex].value;
+	};
+	
+	sector_selector.onchange = function() {
+		window.location.pathname = 'top_gainers/' 
+			+ sector_selector.options[sector_selector.selectedIndex].value 
+			+ '/' + time_frame_selector.options[time_frame_selector.selectedIndex].value;
+	};
+</script>
+
+{% endblock javascripts %}

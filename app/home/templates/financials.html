@@ -1,0 +1,157 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Financials {% endblock title %}
+
+{% block content %}
+
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Financials</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="/index"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Financials</a></li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+	<div class="row">
+	  <div class="col">
+		<div class="card">
+		  <!-- Card header -->
+		  <div class="card-header border-0">
+			<div class="d-flex align-items-center justify-content-between">
+				<h3 class="mr-auto mb-0">Fundamentally Strong Stocks in your Sector</h3>
+				
+				<div>
+					  <select class="form-control" id="sectorSelect" onchange="location = this.value;">
+						{% for d in sector_select_data %}
+						<option value="{{ d.name }}" {% if d.name == sector %}selected="selected"{% endif %}>{{ d.name }}</option>
+						{% endfor %}
+					  </select>
+				  </div>
+			</div>
+		  </div>
+		  <!-- Light table -->
+		  <div class="table-responsive">
+			<table class="table align-items-center table-flush">
+			  <thead class="thead-light">
+				<tr>
+				  <th scope="col" class="sort" data-sort="symbol">Symbol</th>
+				  <th scope="col" class="sort" data-sort="name">Company Name</th>
+				  <th scope="col" class="sort" data-sort="eps">EPS</th>
+				  <th scope="col" class="sort" data-sort="pe">P/E</th>
+				  <th scope="col" class="sort" data-sort="peg">PEG</th>
+				  <th scope="col" class="sort" data-sort="ps">P/S</th>
+				  <th scope="col" class="sort" data-sort="pb">P/B</th>
+				  <th scope="col" class="sort" data-sort="v-ebitda">Value/EBITDA</th>
+				  <th scope="col" class="sort" data-sort="d-ebtida">Debt/EBITDA</th>
+				  <th scope="col" class="sort" data-sort="beta">Beta</th>
+				  <th scope="col" class="sort" data-sort="gross-margin">Gross Margin</th>
+				  <th scope="col" class="sort" data-sort="operating-margin">Operating Margin</th>
+				  <th scope="col" class="sort" data-sort="net-margin">Net Margin</th>
+				  <th scope="col" class="sort" data-sort="div-yield">Dividend Yield</th>
+				  <th scope="col" class="sort" data-sort="current-ratio">Current Ratio</th>
+				  <th scope="col" class="sort" data-sort="roe">ROE</th>
+				  <th scope="col" class="sort" data-sort="return">Return (1y)</th>
+				  <th scope="col" class="sort" data-sort="industry-score">Industry Score</th>
+				  <th scope="col">Watchlist</th>
+				</tr>
+			  </thead>
+			  <tbody class="list">
+				{% for row in financials_rows %}
+					<tr>
+					  <td class="symbol">
+						<a href="https://finance.yahoo.com/quote/{{ row.ticker }}" target=”_blank”>{{ row.ticker }}</a>
+					  </td>
+					  
+					  <td class="name">{{ row.name }}</td>
+					  <td class="eps text-right">{{ row.eps }}</td>
+					  <td class="pe text-right">{{ row.pe }}</td>
+					  <td class="peg text-right">{{ row.peg }}</td>
+					  <td class="ps text-right">{{ row.ps }}</td>
+					  <td class="pb text-right">{{ row.pb }}</td>
+					  <td class="v-ebitda text-right">{{ row.valueToEbitda }}</td>
+					  <td class="d-ebtida text-right">{{ row.debtToEbitda }}</td>
+					  <td class="beta text-right">{{ row.beta }}</td>
+					  <td class="gross-margin text-right">{{ row.grossMargin }}%</td>
+					  <td class="operating-margin text-right">{{ row.operatingMargin }}%</td>
+					  <td class="net-margin text-right">{{ row.netMargin }}%</td>
+					  
+					  {% if row.dividendYield != 'NA' %}
+						<td class="div-yield text-right">{{ row.dividendYield }}%</td>
+					  {% else %}
+						<td class="div-yield text-right">NA</td>
+					  {% endif %}
+					  
+					  <td class="current-ratio text-right">{{ row.currentRatio }}</td>
+					  
+					  <td class="roe text-right">
+						  {% if row.ROE.startswith('-') %}
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.ROE }}%</span>
+						  {% else %}
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.ROE }}%</span>
+						  {% endif %}
+					  </td>
+					  
+					  <td class="return text-right">
+						  {% if row.return1y.startswith('-') %}
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.return1y }}%</span>
+						  {% else %}
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.return1y }}%</span>
+						  {% endif %}
+					  </td>
+					 
+					  <td class="industry-score text-right">{{ row.industryScore }}</td>
+					  
+					  <td class="text-center">
+						<form role="form" method="post" action="">
+							{% if row.ticker in current_user.watchlist.split() %}
+								<button name="remove" value="{{ row.ticker }}" class="btn btn-icon btn-danger" type="submit">
+									<span class="btn-inner--icon"><i class="ni ni-fat-delete"></i></span>
+								</button>
+							{% else %}
+								<button name="add" value="{{ row.ticker }}" class="btn btn-icon btn-primary" type="submit">
+									<span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+								</button>
+							{% endif %}
+						</form>
+					  </td>
+
+					</tr>
+				{% endfor %}
+			  </tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+    {% include "includes/footer.html" %}
+
+  </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+
+<script>
+	var sector_selector = document.getElementById("sectorSelect");
+	
+	sector_selector.onchange = function() {
+		window.location.pathname = 'financials/' 
+			+ sector_selector.options[sector_selector.selectedIndex].value;
+	};
+</script>
+
+{% endblock javascripts %}
