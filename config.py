@@ -22,6 +22,9 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
+
+    basedir    = os.path.abspath(os.path.dirname(__file__))
+    
     DEBUG = False
 
     # Security
