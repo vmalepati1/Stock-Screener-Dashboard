@@ -38,9 +38,6 @@ class ProductionConfig(Config):
 ##        config( 'DB_PORT'     , default=5432            ),
 ##        config( 'DB_NAME'     , default='appseed-flask' )
 ##    )
-
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
 class DebugConfig(Config):
     DEBUG = True
