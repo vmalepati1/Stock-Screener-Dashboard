@@ -8,21 +8,15 @@ import yfinance as yf
 import time
 from multiprocessing import Pool
 
-#these are the stocks we can choose in our portfolio
-stocks = ['AAPL','WMT','TSLA','GE','AMZN','DB']
+stocks = ['AMD', 'AAPL', 'MSEGX']
 
 #we use historical data to approximate mean and variance: MPT depends on historical data !!!
-start_date='2010-01-01'
-end_date ='2020-01-01'
+start_date='2015-11-04'
+end_date ='2020-11-04'
 
 #downloading the data from Yahoo! Finance
 def download_data(stocks):
-	data = yf.download(  # or pdr.get_data_yahoo(...
-		# tickers list or string as well
-		tickers = stocks,
-		start=start_date,
-		end=end_date
-	)['Adj Close']
+	data = web.DataReader(stocks,data_source='yahoo',start=start_date,end=end_date)['Adj Close']
 		
 	return data
 	
@@ -45,7 +39,7 @@ def show_statistics(returns):
 	print(returns.cov()*252)
 
 #weights defines what stocks to include (with what portion) in the portfolio
-def initialize_weights():
+def initialize_weights(stocks):
 	weights = np.random.random(len(stocks))
 	weights /= np.sum(weights)
 	return weights;
@@ -60,19 +54,40 @@ def calculate_portfolio_variance(returns, weights):
 	portfolio_variance = np.sqrt(np.dot(weights.T, np.dot(returns.cov()*252,weights)))
 	print("Expected variance:", portfolio_variance)
 
-def get_return_and_variance(returns):
-        weights = np.random.random(len(stocks))
-        weights/=np.sum(weights)
-        return np.sum(returns.mean()*weights)*252, np.sqrt(np.dot(weights.T,np.dot(returns.cov()*252,weights)))
+def get_return_and_variance_c(i, returns, stocks_len):
+	weights = np.random.random(stocks_len)
+	weights/=np.sum(weights)
+	return np.sum(returns.mean()*weights)*252, np.sqrt(np.dot(weights.T,np.dot(returns.cov()*252,weights)))
 
-def generate_portfolios(weights, returns):
+def get_return_and_variance_p(returns_and_stocks_len):
+	returns = returns_and_stocks_len[0]
+	stocks_len = returns_and_stocks_len[1]
+	weights = np.random.random(stocks_len)
+	weights/=np.sum(weights)
+	return np.sum(returns.mean()*weights)*252, np.sqrt(np.dot(weights.T,np.dot(returns.cov()*252,weights)))
 
-	preturns = []
-	pvariances = []
+def generate_portfolios(weights, returns, stocks):
+	CONNECTIONS = 100
 
-	p = Pool(5)
+##	preturns = []
+##	pvariances = []
 
-	returns_and_variances = p.apply_async(get_return_and_variance, [returns] * 10000)
+##	with concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS) as executor:
+##		future_to_data  = (executor.submit(get_return_and_variance_c, i, returns, len(stocks)) for i in range(10000))
+##		
+##		for future in concurrent.futures.as_completed(future_to_data):
+##			try:
+##				returns, variance = future.result()
+##
+##				preturns.append(returns)
+##				pvariances.append(variance)
+##			except Exception as exc:
+##				print(str(exc))
+##				print('Error calculating portfolio futures!')
+
+	pool = Pool(5)
+
+	returns_and_variances = pool.map(get_return_and_variance_p, [(returns, len(stocks))] * 10000)
 
 	preturns, pvariances = zip(*returns_and_variances)
 
@@ -109,7 +124,7 @@ def min_func_sharpe(weights,returns):
 	return	-statistics(weights,returns)[2] 
 	
 # what are the constraints? The sum of weights = 1 !!!  f(x)=0 this is the function to minimize
-def optimize_portfolio(weights,returns):
+def optimize_portfolio(weights,returns, stocks):
 	constraints = ({'type':'eq','fun': lambda x: np.sum(x)-1}) #the sum of weights is 1
 	bounds = tuple((0,1) for x in range(len(stocks))) #the weights can be 1 at most: 1 when 100% of money is invested into a single stock
 	optimum=optimization.minimize(fun=min_func_sharpe,x0=weights,args=returns,method='SLSQP',bounds=bounds,constraints=constraints) 
@@ -131,8 +146,18 @@ def show_optimal_portfolio(optimum, returns, preturns, pvariances):
 
 def get_allocations_and_stats(stocks):
 	data = download_data(stocks)
+	#show_data(data)
 	returns = calculate_returns(data)
-	weights=initialize_weights()
-	preturns,pvariances=generate_portfolios(weights, returns)
-	optimum=optimize_portfolio(weights,returns)
+	#plot_daily_returns(returns)
+	# show_statistics(returns)
+	weights=initialize_weights(stocks)
+	# calculate_portfolio_return(returns,weights)
+	# calculate_portfolio_variance(returns,weights)
+	# preturns,pvariances=generate_portfolios(weights, returns, stocks)
+	#plot_portfolios(preturns,pvariances)
+	optimum=optimize_portfolio(weights,returns, stocks)
 	return get_optimal_portfolio(optimum, returns)
+
+weights, stats = get_allocations_and_stats(stocks)
+print(stats)
+print(weights)

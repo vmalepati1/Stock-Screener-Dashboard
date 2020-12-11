@@ -10,8 +10,8 @@ import concurrent.futures
 from app import _pool
 
 #we use historical data to approximate mean and variance: MPT depends on historical data !!!
-start_date='2010-10-15'
-end_date ='2020-10-15'
+start_date='2015-11-04'
+end_date ='2020-11-04'
 
 #downloading the data from Yahoo! Finance
 def download_data(stocks):
