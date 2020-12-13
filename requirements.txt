@@ -21,3 +21,8 @@ git+https://github.com/mauriciocap/yfinance@7d09796d189277c4b6f4c2136ec9a6702a60
 gunicorn
 email_validator
 xlrd
+html5lib
+alembic
+Flask-Migrate
+Flask-Script
+psycopg2
