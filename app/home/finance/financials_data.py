@@ -5,24 +5,13 @@ import math
 
 from app.home.finance.stocks_dict import stocks_dict
 from app.home.finance.industry_lut import industry_lut
+from app.home.utils.beautify import beautify_ratio, beautify_percentage
 
 def calculate_score_lower(stat, industry_avg):
     return (industry_avg - stat) / industry_avg
 
 def calculate_score_higher(stat, industry_avg):
     return (stat - industry_avg) / industry_avg
-
-def beautify_ratio(ratio):
-    if ratio is not None:
-        return str(round(ratio, 2))
-    else:
-        return 'NA'
-
-def beautify_percentage(percentage):
-    if percentage is not None:
-        return str(round(100*percentage, 2)) + '%'
-    else:
-        return 'NA'
 
 def load_financials(company_name, ticker_name, 
                     pe_industry, ps_industry, pbv_industry,

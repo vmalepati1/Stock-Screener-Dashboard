@@ -78,8 +78,8 @@ def register():
         attrs = dict(request.form)
         attrs['salt'] = bcrypt.gensalt().decode()
         attrs['remember_token'] = str(uuid.uuid4())
-        attrs['first_name'] = 'Vikas'
-        attrs['last_name'] = 'Malepati'
+        attrs['first_name'] = 'Planty'
+        attrs['last_name'] = 'Investments'
 
         current_timestamp = datetime.datetime.utcnow()
         attrs['date_created'] = current_timestamp

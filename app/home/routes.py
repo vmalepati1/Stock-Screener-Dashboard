@@ -7,6 +7,7 @@ from app import db
 from app.home import blueprint
 from app.home.forms import EditProfileForm
 from app.home.finance.sectors import sectors, SPDR_ETFs
+from app.home.finance.time_frames import time_frames
 from app.home.finance.top_gainers import get_top_gainers
 from app.home.finance.time_frames import time_frames
 from app.home.finance.returns import get_price_and_return
@@ -16,10 +17,12 @@ from app.home.finance.allocations import get_allocations_and_stats
 from app.home.finance.insider_trading_data import get_insider_trading_data
 from app.home.finance.hedge_fund_data import *
 from app.home.finance.financials_data import get_financials_data
+from app.home.finance.dcf_calculator import get_fair_value
 from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import login_manager
 from jinja2 import TemplateNotFound
+import math
 
 @blueprint.route('/index')
 @login_required
@@ -50,6 +53,10 @@ def edit_profile():
 @blueprint.route('/top_gainers/<string:sector>/<string:time_frame>',  methods=['GET', 'POST'])
 @login_required
 def top_gainers(sector, time_frame):
+    if sector not in [s['name'] for s in sectors] \
+       or time_frame not in [tf['name'] for tf in time_frames]:
+        return render_template('page-404.html'), 404
+    
     SPDR_ETF = SPDR_ETFs[sector]
     price, change = get_price_and_return(SPDR_ETF, time_frame)
     gainers = get_top_gainers(sector, time_frame)
@@ -71,6 +78,9 @@ def top_gainers(sector, time_frame):
 def watchlist(time_frame):
     stocks = sum(stocks_dict.values(), [])
     stocks = sorted(stocks, key = lambda i: i['ticker'])
+
+    if time_frame not in [tf['name'] for tf in time_frames]:
+        return render_template('page-404.html'), 404
 
     if 'add' in request.form:
         current_user.watchlist = add_to_watchlist(current_user.watchlist, request.form['symbol'])
@@ -109,6 +119,9 @@ def allocations():
 @blueprint.route('/hedge_funds/<string:sector>',  methods=['GET', 'POST'])
 @login_required
 def hedge_funds(sector):
+    if sector not in [s['name'] for s in sectors]:
+        return render_template('page-404.html'), 404
+    
     most_bought_data = getMostBoughtData()
     most_bought_tickers = [x[0] for x in most_bought_data]
 
@@ -153,6 +166,9 @@ def hedge_funds(sector):
 @blueprint.route('/insider_trading/<string:sector>',  methods=['GET', 'POST'])
 @login_required
 def insider_trading(sector):
+    if sector not in [s['name'] for s in sectors]:
+        return render_template('page-404.html'), 404
+    
     sector_tickers = [s['ticker'] for s in stocks_dict[sector]]
     insider_trading_data = get_insider_trading_data()
     
@@ -192,6 +208,9 @@ def insider_trading(sector):
 @blueprint.route('/financials/<string:sector>',  methods=['GET', 'POST'])
 @login_required
 def financials(sector):
+    if sector not in [s['name'] for s in sectors]:
+        return render_template('page-404.html'), 404
+    
     financials_rows = get_financials_data(sector)
 
     if 'add' in request.form:
@@ -204,6 +223,33 @@ def financials(sector):
         db.session.commit()
 
     return render_template('financials.html', segment='financials', sector_select_data=sectors, sector=sector, financials_rows=financials_rows)
+
+@blueprint.route('/dcf', defaults={'ticker': None})
+@blueprint.route('/dcf/<string:ticker>',  methods=['GET'])
+@login_required
+def dcf(ticker):
+    stocks = sum(stocks_dict.values(), [])
+    stocks = sorted(stocks, key = lambda i: i['ticker'])
+
+    if ticker:
+        try:
+            stock_info = next(s for s in stocks if s['ticker'] == ticker)
+            currency = stock_info['currency']
+        
+            revenue_growth_rate, cost_of_debt, cost_of_equity, wacc, perpetual_growth_rate, \
+                   revenues_row, revenue_growth_row, FCFs, discount_factors, present_values, \
+                   fair_value, current_trading_price, upside = get_fair_value(ticker)
+
+            if fair_value <= 0 or math.isnan(fair_value):
+                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+
+            print(ticker)
+
+            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=current_trading_price, currency=currency, fair_value=fair_value, upside=upside)
+        except:
+            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+    else:
+        return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker)
 
 @blueprint.route('/<template>')
 @login_required

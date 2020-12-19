@@ -20,7 +20,7 @@ def getMostBoughtData():
 
     n_symbols = 30
 
-    tickers_start_idx = 14
+    tickers_start_idx = 15
     names_start_idx = 0
     price_start_idx = 0
     changes_start_idx = 2
