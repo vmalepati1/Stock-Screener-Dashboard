@@ -267,7 +267,7 @@ def forecasts(ticker):
             
             linReg_prediction, svm_prediction = get_forecast_data(ticker)
 
-            forecast_data = zip(linReg_prediction[:15], svm_prediction[:15])
+            forecast_data = zip(linReg_prediction, svm_prediction)
 
             return render_template('forecasts.html', segment='forecasts', stocks_list=stocks, ticker=ticker, currency=currency, forecast_data=forecast_data)
         except:

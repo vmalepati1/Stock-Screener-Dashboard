@@ -1,4 +1,4 @@
-import quandl
+import yfinance as yf
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
@@ -6,19 +6,31 @@ from sklearn.model_selection import train_test_split
 
 def get_forecast_data(ticker_name):
     # Get the stock data (a library that essentially pulls financial data for you)
-    df = quandl.get("WIKI/" + ticker_name)
+    ticker = yf.Ticker(ticker_name)
+
+    df = ticker.history(  # or pdr.get_data_yahoo(...
+        # use "period" instead of start/end
+        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+        # (optional, default is '1mo')
+        period = '2y',
+
+        # fetch data by interval (including intraday if period < 60 days)
+        # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+        # (optional, default is '1d')
+        interval = '1d',
+    )
     # Shows the initial data pulled from quandl
 
     # Get the Adjusted Close Price
-    df = df[['Adj. Close']]
+    df = df[['Close']]
     # Show the new data based off of the adjustments
 
     # A variable for predicting 'n' days out into the future
     # n=50 days
-    forecast = 50
+    forecast = 15
     # Create another column (the target) shifted 'n' units up
     # shifts due to the forecast
-    df['Prediction'] = df[['Adj. Close']].shift(-forecast)
+    df['Prediction'] = df[['Close']].shift(-forecast)
     # prints the new data set after the new column
 
     ### Create a new independent data set for the X values
