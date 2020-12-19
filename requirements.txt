@@ -16,7 +16,7 @@ python-decouple==3.3
 flask_bcrypt
 scipy==1.5.3
 selenium==3.141.0
-git+https://github.com/vmalepati1/yfinance.git#egg=yfinance
+git+https://github.com/vmalepati1/yfinance
 gunicorn
 email_validator
 xlrd
