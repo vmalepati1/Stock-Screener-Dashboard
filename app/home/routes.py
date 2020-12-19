@@ -18,6 +18,7 @@ from app.home.finance.insider_trading_data import get_insider_trading_data
 from app.home.finance.hedge_fund_data import *
 from app.home.finance.financials_data import get_financials_data
 from app.home.finance.dcf_calculator import get_fair_value
+from app.home.finance.forecast_data import get_forecast_data
 from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import login_manager
@@ -236,21 +237,45 @@ def dcf(ticker):
             stock_info = next(s for s in stocks if s['ticker'] == ticker)
             currency = stock_info['currency']
         
-            revenue_growth_rate, cost_of_debt, cost_of_equity, wacc, perpetual_growth_rate, \
-                   revenues_row, revenue_growth_row, FCFs, discount_factors, present_values, \
-                   fair_value, current_trading_price, upside = get_fair_value(ticker)
+            metrics, revenues_row, revenue_growth_row, FCFs, discount_factors, present_values, \
+                     fair_value, current_trading_price, upside = get_fair_value(ticker)
 
             if fair_value <= 0 or math.isnan(fair_value):
-                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
+                                       msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
 
-            print(ticker)
-
-            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=current_trading_price, currency=currency, fair_value=fair_value, upside=upside)
+            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=current_trading_price, currency=currency, fair_value=fair_value,
+                                   upside=upside, metrics=metrics, revenues_row=revenues_row, revenue_growth_row=revenue_growth_row, FCFs=FCFs, discount_factors=discount_factors,
+                                   present_values=present_values)
         except:
-            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
+                                   msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
     else:
         return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker)
 
+@blueprint.route('/forecasts', defaults={'ticker': None})
+@blueprint.route('/forecasts/<string:ticker>',  methods=['GET'])
+@login_required
+def forecasts(ticker):
+    stocks = sum(stocks_dict.values(), [])
+    stocks = sorted(stocks, key = lambda i: i['ticker'])
+
+    if ticker:
+        try:
+            stock_info = next(s for s in stocks if s['ticker'] == ticker)
+            currency = stock_info['currency']
+            
+            linReg_prediction, svm_prediction = get_forecast_data(ticker)
+
+            forecast_data = zip(linReg_prediction[:15], svm_prediction[:15])
+
+            return render_template('forecasts.html', segment='forecasts', stocks_list=stocks, ticker=ticker, currency=currency, forecast_data=forecast_data)
+        except:
+            return render_template('forecasts.html', segment='forecasts', stocks_list=stocks, ticker=ticker,
+                                   msg='Unfortunately, there is insufficient price action data to generate a forecast for this stock. Please select another symbol.')
+    else:
+        return render_template('forecasts.html', segment='forecasts', stocks_list=stocks, ticker=ticker)
+    
 @blueprint.route('/<template>')
 @login_required
 def route_template(template):

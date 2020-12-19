@@ -47,7 +47,7 @@
 				</div>
 				<div class="card-body">
 					{% if ticker %}
-					
+
 						{% if msg %}
 						  <div class="text-center">
 							<span class="text-danger">{{ msg | safe }}</span>
@@ -71,7 +71,7 @@
 										</div>
 									</div>
 								</div>
-								
+
 								<div class="col-lg-3 col-md-6">
 									<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
 										<div class="card-body">
@@ -99,7 +99,7 @@
 										</div>
 									</div>
 								</div>
-								
+
 								<div class="col-lg-3 col-md-6">
 									<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
 										<div class="card-body">
@@ -127,10 +127,104 @@
 										</div>
 									</div>
 								</div>
-							
+
 							</div>
+
+							<div class="row align-items-center justify-content-center mt-4">
+								<table class="table w-50 align-items-center table-flush">
+								  <thead class="thead-light">
+									<tr>
+									  <th scope="col" class="sort" data-sort="metric">Metric</th>
+									  <th scope="col" class="sort" data-sort="assumption">Assumption</th>
+									</tr>
+								  </thead>
+								  <tbody id="metricsContainer" class="list">
+									<tr>
+										<td class="metric">Revenue growth rate</td>
+										<td class="assumption text-right">{{ (100*metrics[0])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Cost of debt</td>
+										<td class="assumption text-right">{{ (100*metrics[1])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Cost of equity</td>
+										<td class="assumption text-right">{{ (100*metrics[2])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">WACC</td>
+										<td class="assumption text-right">{{ (100*metrics[3])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Perpetual growth</td>
+										<td class="assumption text-right">{{ (100*metrics[4])|round(2) }}%</td>
+									</tr>
+								  </tbody>
+								</table>
+							  </div>
+
+							  <div class="table-responsive align-items-center justify-content-center mt-4">
+								<table class="table align-items-center table-flush">
+								  <thead class="thead-light">
+									<tr>
+									  <th scope="col" class="sort">Fiscal Period</th>
+									  <th scope="col" class="sort">2019A</th>
+									  <th scope="col" class="sort">2020E</th>
+									  <th scope="col" class="sort">2021E</th>
+									  <th scope="col" class="sort">2022E</th>
+									  <th scope="col" class="sort">2023E</th>
+									  <th scope="col" class="sort">2024E</th>
+									  <th scope="col" class="sort">Terminal Value</th>
+									</tr>
+								  </thead>
+								  <tbody id="calculationsContainer" class="list">
+									<tr>
+										<td>Total revenue</td>
+										{% for r in revenues_row %}
+											<td class="text-right">{{ r }}</td>
+										{% endfor %}
+										<td></td>
+									</tr>
+									
+									<tr>
+										<td>Revenue growth rate</td>
+										{% for rg in revenue_growth_row %}
+											<td class="text-right">{{ (100*rg)|round(2) }}%</td>
+										{% endfor %}
+										<td></td>
+									</tr>
+									
+									<tr>
+										<td>Free cash flow</td>
+										{% for fcf in FCFs %}
+											<td class="text-right">{{ fcf }}</td>
+										{% endfor %}
+									</tr>
+									
+									<tr>
+										<td>Discount factor</td>
+										<td></td>
+										{% for df in discount_factors %}
+											<td class="text-right">{{ df|round(3) }}</td>
+										{% endfor %}
+									</tr>
+									
+									<tr>
+										<td>PV</td>
+										<td></td>
+										{% for pv in present_values %}
+											<td class="text-right">{{ pv }}</td>
+										{% endfor %}
+									</tr>
+								  </tbody>
+								</table>
+							  </div>
 						{% endif %}
-						
+
 					{% endif %}
 				</div>
 			</div>
@@ -140,7 +234,7 @@
 </div>
 
 {% endblock content %}
-<!-- Specific JS goes HERE --> 
+<!-- Specific JS goes HERE -->
 {% block javascripts %}
 <script src="/static/assets/vendor/clipboard/dist/clipboard.min.js"></script>
 <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
@@ -151,9 +245,9 @@
 	-->
 <script>
 	var ticker_selector = document.getElementById("input-symbol-select");
-	
+
 	ticker_selector.onchange = function() {
-		window.location.pathname = 'dcf/' 
+		window.location.pathname = 'dcf/'
 			+ ticker_selector.options[ticker_selector.selectedIndex].value;
 	};
 </script>

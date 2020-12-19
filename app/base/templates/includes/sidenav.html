@@ -95,6 +95,14 @@
               <span class="nav-link-text">DCF</span>
             </a>
           </li>
+		  
+		  <li class="nav-item">
+            <a class="nav-link {% if 'forecasts' in segment %} active {% endif %}" 
+               href="/forecasts">
+              <i class="ni ni-calendar-grid-58"></i>
+              <span class="nav-link-text">Forecasts</span>
+            </a>
+          </li>
 
 		  <li class="nav-item">
 			<a class="nav-link" href="{{ url_for('base_blueprint.logout') }}">

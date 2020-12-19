@@ -4,6 +4,8 @@ import yfinance as yf
 import numpy as np
 import pandas as pd
 
+from app.home.utils.beautify import beautify_financials
+
 def text_to_num(text):
     d = {
         'M': 6,
@@ -120,6 +122,7 @@ def get_fair_value(ticker_name, total_forecasted_periods=5, ten_year_yield=0.009
     revenue_growth_row = np.diff(revenues_row) / revenues_row[:-1]
     revenues_row.pop(0)
 
-    return revenue_growth_rate, cost_of_debt, cost_of_equity, wacc, perpetual_growth_rate, \
-           revenues_row, revenue_growth_row, FCFs, discount_factors, present_values, \
-           fair_value, current_trading_price, upside
+    metrics = [revenue_growth_rate, cost_of_debt, cost_of_equity, wacc, perpetual_growth_rate]
+
+    return metrics, beautify_financials(revenues_row), revenue_growth_row, beautify_financials(FCFs), \
+           discount_factors, beautify_financials(present_values), fair_value, current_trading_price, upside
