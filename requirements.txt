@@ -26,3 +26,4 @@ Flask-Migrate
 Flask-Script
 psycopg2
 scikit-learn==0.23.1
+openpyxl==3.0.5

@@ -54,6 +54,6 @@ def getMostBoughtData():
     return data
 
 def getMostOwnedData():
-    most_owned_df = pd.read_excel('data/most-owned-data-10-18-20.xlsx')
+    most_owned_df = pd.read_excel('data/most-owned-data-10-18-20.xlsx', engine='openpyxl')
 
     return most_owned_df['Symbol'].tolist()
