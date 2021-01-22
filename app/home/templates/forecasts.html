@@ -1,0 +1,108 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Forecasts {% endblock title %}
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
+<!-- Header -->
+<div class="header bg-gradient-primary pb-8 pt-4 pt-md-4">
+	<div class="container-fluid">
+		<div class="header-body">
+			<!-- Card stats -->
+			<div class="row align-items-center">
+				<div class="col-xl-4 col-lg-6">
+					<h6 class="h2 text-white d-inline-block mb-0">Forecasts</h6>
+					<nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+						<ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+							<li class="breadcrumb-item"><a href="/index"><i class="fas fa-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#">Forecasts</a></li>
+						</ol>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid mt--7">
+	<div class="row">
+		<div class="col">
+			<div class="card shadow">
+				<div class="card-header bg-transparent">
+					<div class="d-flex">
+						<div class="mr-auto">
+							<h3 class="mb-0">Forecasts (15-Day)</h3>
+							<div class="text-muted mt-1 mb-3">
+								View the price action predictions by machine learning algorithms.
+							</div>
+						</div>
+						<div class="ml-auto">
+							<label for="input-symbol-select">Symbol</label>
+							<select class="form-control" name="symbol" id="input-symbol-select">
+							{% for s in stocks_list %}
+							<option value="{{ s.ticker }}" {% if s.ticker == ticker %}selected="selected"{% endif %}>{{ s.ticker }} - {{ s.name }}</option>
+							{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					{% if ticker %}
+
+						{% if msg %}
+						  <div class="text-center">
+							<span class="text-danger">{{ msg | safe }}</span>
+						  </div>
+						{% else %}
+							<div class="row align-items-center justify-content-center mt-4">
+								<table class="table w-50 align-items-center table-flush">
+								  <thead class="thead-light">
+									<tr>
+									  <th scope="col" class="sort" data-sort="day-number">Future Day Number</th>
+									  <th scope="col" class="sort" data-sort="linear-forecast">Linear Regression Forecast</th>
+									  <th scope="col" class="sort" data-sort="svm-forecast">SVM Forecast</th>
+									</tr>
+								  </thead>
+								  <tbody id="forecastsContainer" class="list">
+									{% for lin_price, svm_price in forecast_data %}
+										<tr>
+											<td class="day-number">Day {{ loop.index }}</td>
+											<td class="linear-forecast text-right">{{ lin_price|round(2) }} {{ currency }}</td>
+											<td class="svm-forecast text-right">{{ svm_price|round(2) }} {{ currency }}</td>
+										</tr>
+									{% endfor %}
+								  </tbody>
+								</table>
+							  </div>
+						{% endif %}
+
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include "includes/footer.html" %}
+</div>
+
+{% endblock content %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<script src="/static/assets/vendor/clipboard/dist/clipboard.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+<script type="text/javascript" src="/static/assets/vendor/chartjs-plugin-colorschemes/chartjs-plugin-colorschemes.js"></script>
+<!--
+	<script type="text/javascript" src="/static/assets/vendor/chartjs-plugin-colorschemes/chartjs-plugin-colorschemes.min.js"></script>
+	-->
+<script>
+	var ticker_selector = document.getElementById("input-symbol-select");
+
+	ticker_selector.onchange = function() {
+		window.location.pathname = 'forecasts/'
+			+ ticker_selector.options[ticker_selector.selectedIndex].value;
+	};
+</script>
+<script>
+	function searchLimiter() {
+	}
+</script>
+{% endblock javascripts %}

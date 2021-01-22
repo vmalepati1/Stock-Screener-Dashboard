@@ -14,7 +14,10 @@ class Config(object):
     SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_007')
 
     # This will create a file in <app> FOLDER
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
+    # FOR LOCAL DEV:
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
+
+    SQLALCHEMY_DATABASE_URI = 'postgres://tohjforetehqru:53b9d8d58eacf483f1f4c0cb1e520d926b104cba589f7631641c82894e19c6d8@ec2-34-237-236-32.compute-1.amazonaws.com:5432/d6t7cg26h5blbn'
 
     # MySQL database URI
     # SQLALCHEMY_DATABASE_URI = 'mysql://root:HeavenBlessesHardwork@localhost/stockdb'
@@ -41,9 +44,6 @@ class ProductionConfig(Config):
 ##        config( 'DB_PORT'     , default=5432            ),
 ##        config( 'DB_NAME'     , default='appseed-flask' )
 ##    )
-
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
 class DebugConfig(Config):
     DEBUG = True

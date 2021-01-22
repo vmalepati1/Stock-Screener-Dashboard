@@ -1,0 +1,258 @@
+{% extends 'layouts/base.html' %}
+{% block title %} DCF {% endblock title %}
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+{% block content %}
+<!-- Header -->
+<div class="header bg-gradient-primary pb-8 pt-4 pt-md-4">
+	<div class="container-fluid">
+		<div class="header-body">
+			<!-- Card stats -->
+			<div class="row align-items-center">
+				<div class="col-xl-4 col-lg-6">
+					<h6 class="h2 text-white d-inline-block mb-0">DCF</h6>
+					<nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+						<ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+							<li class="breadcrumb-item"><a href="/index"><i class="fas fa-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#">DCF</a></li>
+						</ol>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid mt--7">
+	<div class="row">
+		<div class="col">
+			<div class="card shadow">
+				<div class="card-header bg-transparent">
+					<div class="d-flex">
+						<div class="mr-auto">
+							<h3 class="mb-0">Discounted Cash Flow Model (5Y)</h3>
+							<div class="text-muted mt-1 mb-3">
+								View the fair value of an equity based on its projected future cash flows for a 5 year period.
+							</div>
+						</div>
+						<div class="ml-auto">
+							<label for="input-symbol-select">Symbol</label>
+							<select class="form-control" name="symbol" id="input-symbol-select">
+							{% for s in stocks_list %}
+							<option value="{{ s.ticker }}" {% if s.ticker == ticker %}selected="selected"{% endif %}>{{ s.ticker }} - {{ s.name }}</option>
+							{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					{% if ticker %}
+
+						{% if msg %}
+						  <div class="text-center">
+							<span class="text-danger">{{ msg | safe }}</span>
+						  </div>
+						{% else %}
+							<div class="row align-items-center justify-content-center">
+								<div class="col-lg-3 col-md-6">
+									<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+										<div class="card-body">
+										  <div class="row">
+											<div class="col">
+											  <h5 class="card-title text-uppercase text-muted mb-0">Current Price</h5>
+											  <span class="text-info mr-2">{{ current_price|round(2) }} {{ currency }}</span>
+											</div>
+											<div class="col-auto">
+											  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+												<i class="ni ni-chart-bar-32"></i>
+											  </div>
+											</div>
+										  </div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-md-6">
+									<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+										<div class="card-body">
+										  <div class="row">
+											<div class="col">
+											  <h5 class="card-title text-uppercase text-muted mb-0">Fair Value</h5>
+											  {% if upside < 0 %}
+												<span class="text-warning mr-2">{{ fair_value|round(2) }} {{ currency }}</span>
+											  {% else %}
+												<span class="text-success mr-2">{{ fair_value|round(2) }} {{ currency }}</span>
+											  {% endif %}
+											</div>
+											<div class="col-auto">
+												{% if upside < 0 %}
+												  <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+													<i class="ni ni-money-coins"></i>
+												  </div>
+												{% else %}
+												  <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+													<i class="ni ni-money-coins"></i>
+												  </div>
+												{% endif %}
+											</div>
+										  </div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-md-6">
+									<div class="card card-stats mb-4 mb-xl-0" style="align-items: stretch;">
+										<div class="card-body">
+										  <div class="row">
+											<div class="col">
+											  <h5 class="card-title text-uppercase text-muted mb-0">Upside</h5>
+											  {% if upside < 0 %}
+												<span class="text-warning mr-2">{{ (100*upside)|round(2) }}%</span>
+											  {% else %}
+												<span class="text-success mr-2">{{ (100*upside)|round(2) }}%</span>
+											  {% endif %}
+											</div>
+											<div class="col-auto">
+												{% if upside < 0 %}
+												  <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+													<i class="fas fa-percent"></i>
+												  </div>
+												{% else %}
+												  <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+													<i class="fas fa-percent"></i>
+												  </div>
+												{% endif %}
+											</div>
+										  </div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="row align-items-center justify-content-center mt-4">
+								<table class="table w-50 align-items-center table-flush">
+								  <thead class="thead-light">
+									<tr>
+									  <th scope="col" class="sort" data-sort="metric">Metric</th>
+									  <th scope="col" class="sort" data-sort="assumption">Assumption</th>
+									</tr>
+								  </thead>
+								  <tbody id="metricsContainer" class="list">
+									<tr>
+										<td class="metric">Revenue growth rate</td>
+										<td class="assumption text-right">{{ (100*metrics[0])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Cost of debt</td>
+										<td class="assumption text-right">{{ (100*metrics[1])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Cost of equity</td>
+										<td class="assumption text-right">{{ (100*metrics[2])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">WACC</td>
+										<td class="assumption text-right">{{ (100*metrics[3])|round(2) }}%</td>
+									</tr>
+
+									<tr>
+										<td class="metric">Perpetual growth</td>
+										<td class="assumption text-right">{{ (100*metrics[4])|round(2) }}%</td>
+									</tr>
+								  </tbody>
+								</table>
+							  </div>
+
+							  <div class="table-responsive align-items-center justify-content-center mt-4">
+								<table class="table align-items-center table-flush">
+								  <thead class="thead-light">
+									<tr>
+									  <th scope="col" class="sort">Fiscal Period</th>
+									  <th scope="col" class="sort">2019A</th>
+									  <th scope="col" class="sort">2020E</th>
+									  <th scope="col" class="sort">2021E</th>
+									  <th scope="col" class="sort">2022E</th>
+									  <th scope="col" class="sort">2023E</th>
+									  <th scope="col" class="sort">2024E</th>
+									  <th scope="col" class="sort">Terminal Value</th>
+									</tr>
+								  </thead>
+								  <tbody id="calculationsContainer" class="list">
+									<tr>
+										<td>Total revenue</td>
+										{% for r in revenues_row %}
+											<td class="text-right">{{ r }}</td>
+										{% endfor %}
+										<td></td>
+									</tr>
+									
+									<tr>
+										<td>Revenue growth rate</td>
+										{% for rg in revenue_growth_row %}
+											<td class="text-right">{{ (100*rg)|round(2) }}%</td>
+										{% endfor %}
+										<td></td>
+									</tr>
+									
+									<tr>
+										<td>Free cash flow</td>
+										{% for fcf in FCFs %}
+											<td class="text-right">{{ fcf }}</td>
+										{% endfor %}
+									</tr>
+									
+									<tr>
+										<td>Discount factor</td>
+										<td></td>
+										{% for df in discount_factors %}
+											<td class="text-right">{{ df|round(3) }}</td>
+										{% endfor %}
+									</tr>
+									
+									<tr>
+										<td>PV</td>
+										<td></td>
+										{% for pv in present_values %}
+											<td class="text-right">{{ pv }}</td>
+										{% endfor %}
+									</tr>
+								  </tbody>
+								</table>
+							  </div>
+						{% endif %}
+
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include "includes/footer.html" %}
+</div>
+
+{% endblock content %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<script src="/static/assets/vendor/clipboard/dist/clipboard.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+<script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+<script type="text/javascript" src="/static/assets/vendor/chartjs-plugin-colorschemes/chartjs-plugin-colorschemes.js"></script>
+<!--
+	<script type="text/javascript" src="/static/assets/vendor/chartjs-plugin-colorschemes/chartjs-plugin-colorschemes.min.js"></script>
+	-->
+<script>
+	var ticker_selector = document.getElementById("input-symbol-select");
+
+	ticker_selector.onchange = function() {
+		window.location.pathname = 'dcf/'
+			+ ticker_selector.options[ticker_selector.selectedIndex].value;
+	};
+</script>
+<script>
+	function searchLimiter() {
+	}
+</script>
+{% endblock javascripts %}
