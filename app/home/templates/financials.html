@@ -62,6 +62,7 @@
 				  <th scope="col" class="sort" data-sort="div-yield">Dividend Yield</th>
 				  <th scope="col" class="sort" data-sort="current-ratio">Current Ratio</th>
 				  <th scope="col" class="sort" data-sort="roe">ROE</th>
+				  <th scope="col" class="sort" data-sort="return">Return (1y)</th>
 				  <th scope="col" class="sort" data-sort="industry-score">Industry Score</th>
 				  <th scope="col">Watchlist</th>
 				</tr>
@@ -95,6 +96,14 @@
 							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.ROE }}</span>
 						  {% else %}
 							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.ROE }}</span>
+						  {% endif %}
+					  </td>
+					  
+					  <td class="return text-right">
+						  {% if row.return1y.startswith('-') %}
+							<span class="text-warning mr-2"><i class="fa fa-arrow-down"></i> {{ row.return1y }}</span>
+						  {% else %}
+							<span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ row.return1y }}</span>
 						  {% endif %}
 					  </td>
 					 

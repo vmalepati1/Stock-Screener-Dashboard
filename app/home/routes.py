@@ -19,6 +19,7 @@ from app.home.finance.hedge_fund_data import *
 from app.home.finance.financials_data import get_financials_data
 from app.home.finance.dcf_calculator import get_fair_value
 from app.home.finance.forecast_data import get_forecast_data
+from app.home.finance.rankings_cache import rankings_cache
 from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import login_manager
@@ -192,8 +193,9 @@ def financials(sector):
     if sector not in [s['name'] for s in sectors]:
         return render_template('page-404.html'), 404
     
-    financials_rows = get_financials_data(sector)
-
+    # financials_rows = get_financials_data(sector)
+    financials_rows = rankings_cache[sector]
+    
     if 'add' in request.form:
         current_user.watchlist = add_to_watchlist(current_user.watchlist, request.form['add'])
 

@@ -17,6 +17,7 @@ def beautify_percentage(percentage):
 
         if str_result == 'nan' or str_result == 'inf' or str_result == '-inf':
             return 'NA'
+
         return str_result + '%'
     else:
         return 'NA'

@@ -9,6 +9,7 @@ import time
 
 from app.home.finance.stocks_dict import stocks_dict
 from app.home.finance.industry_lut import industry_lut
+from app.home.utils.beautify import beautify_ratio, beautify_percentage
 
 pe_industry = pd.read_excel('../data/pedata.xls', skiprows=7, index_col=0)
 ps_industry = pd.read_excel('../data/psdata.xls', skiprows=7, index_col=0)
@@ -23,18 +24,6 @@ def calculate_score_lower(stat, industry_avg):
 
 def calculate_score_higher(stat, industry_avg):
     return (stat - industry_avg) / industry_avg
-
-def beautify_ratio(ratio):
-    if ratio is not None:
-        return str(round(ratio, 2))
-    else:
-        return 'NA'
-
-def beautify_percentage(percentage):
-    if percentage is not None:
-        return str(round(100*percentage, 2)) + '%'
-    else:
-        return 'NA'
 
 def load_financials(company_name, ticker_name):
     ticker = yf.Ticker(ticker_name)
@@ -93,36 +82,36 @@ def load_financials(company_name, ticker_name):
 
     ROE_i = pbv_industry.loc[spreadsheet_industry, 'ROE'].item()
 
-##    ticker_historical = ticker.history(  # or pdr.get_data_yahoo(...
-##        # use "period" instead of start/end
-##        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
-##        # (optional, default is '1mo')
-##        period = '1y',
-##
-##        # fetch data by interval (including intraday if period < 60 days)
-##        # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
-##        # (optional, default is '1d')
-##        interval = '3mo',
-##    )
-##
-##    start_price = ticker_historical['Open'].iloc[0]
-##    end_price = ticker_historical['Close'].iloc[-1]
-##
-##    i = 1
-##    
-##    while math.isnan(start_price):
-##        start_price = ticker_historical['Open'].iloc[i]
-##        
-##        i += 1
-##
-##    i = -2
-##    
-##    while math.isnan(end_price):
-##        end_price = ticker_historical['Close'].iloc[i]
-##        
-##        i -= 1
-##    
-##    change = (end_price - start_price) / start_price
+    ticker_historical = ticker.history(  # or pdr.get_data_yahoo(...
+        # use "period" instead of start/end
+        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+        # (optional, default is '1mo')
+        period = '1y',
+
+        # fetch data by interval (including intraday if period < 60 days)
+        # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+        # (optional, default is '1d')
+        interval = '3mo',
+    )
+
+    start_price = ticker_historical['Open'].iloc[0]
+    end_price = ticker_historical['Close'].iloc[-1]
+
+    i = 1
+    
+    while math.isnan(start_price):
+        start_price = ticker_historical['Open'].iloc[i]
+        
+        i += 1
+
+    i = -2
+    
+    while math.isnan(end_price):
+        end_price = ticker_historical['Close'].iloc[i]
+        
+        i -= 1
+    
+    change = (end_price - start_price) / start_price
 
     # weighted average of how the stock performs relative to industry
     # more emphasis on ROE and margins, less on valuation ratios
@@ -202,7 +191,7 @@ def load_financials(company_name, ticker_name):
             'dividendYield': beautify_percentage(dividendYield),
             'currentRatio': beautify_ratio(currentRatio),
             'ROE': beautify_percentage(ROE),
-            # 'return1y': beautify_percentage(change),
+            'return1y': beautify_percentage(change),
             'industryScore': industry_score
         }
 
