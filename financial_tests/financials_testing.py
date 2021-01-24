@@ -16,7 +16,7 @@ pbv_industry = pd.read_excel('../data/pbvdata.xls', skiprows=7, index_col=0)
 vebtida_industry = pd.read_excel('../data/vebitda.xls', skiprows=8, index_col=0)
 beta_industry = pd.read_excel('../data/betas.xls', skiprows=9, index_col=0, sheet_name='Industry Averages')
 margin_industry = pd.read_excel('../data/margin.xls', skiprows=8, index_col=0)
-financials_cache = pd.read_csv('../data/financials-cache.csv', encoding='ANSI', index_col=0)
+financials_cache = pd.read_csv('../data/financials-cache.csv', encoding='utf-8', index_col=0)
 
 def calculate_score_lower(stat, industry_avg):
     return (industry_avg - stat) / industry_avg
