@@ -31,8 +31,8 @@ def get_projections(ticker_name):
 
     value = page_soup.findAll("span",{"class":"Trsdu(0.3s)"})
 
-    currentVal = text_to_num(value[37].text)
-    nextVal = text_to_num(value[38].text)
+    currentVal = text_to_num(value[38].text)
+    nextVal = text_to_num(value[39].text)
 
     return currentVal, nextVal
 

@@ -5,9 +5,18 @@ import concurrent.futures
 import yfinance as yf
 import pandas as pd
 import math
+import time
 
 from app.home.finance.stocks_dict import stocks_dict
 from app.home.finance.industry_lut import industry_lut
+
+pe_industry = pd.read_excel('../data/pedata.xls', skiprows=7, index_col=0)
+ps_industry = pd.read_excel('../data/psdata.xls', skiprows=7, index_col=0)
+pbv_industry = pd.read_excel('../data/pbvdata.xls', skiprows=7, index_col=0)
+vebtida_industry = pd.read_excel('../data/vebitda.xls', skiprows=8, index_col=0)
+beta_industry = pd.read_excel('../data/betas.xls', skiprows=9, index_col=0, sheet_name='Industry Averages')
+margin_industry = pd.read_excel('../data/margin.xls', skiprows=8, index_col=0)
+financials_cache = pd.read_csv('../data/financials-cache.csv', encoding='ANSI', index_col=0)
 
 def calculate_score_lower(stat, industry_avg):
     return (industry_avg - stat) / industry_avg
@@ -27,31 +36,21 @@ def beautify_percentage(percentage):
     else:
         return 'NA'
 
-def load_financials(company_name, ticker_name, 
-                    pe_industry, ps_industry, pbv_industry,
-                    vebtida_industry, beta_industry, margin_industry):
-
+def load_financials(company_name, ticker_name):
     ticker = yf.Ticker(ticker_name)
+
     info = ticker.info
     financials = ticker.financials
     balance_sheet = ticker.balance_sheet
     cash_flow = ticker.cashflow
 
-    if 'trailingEps' in info:
-        eps = info['trailingEps']
-    else:
-        eps = info['forwardEps']
-    
-    if 'trailingPE' in info:
-        pe = info['trailingPE']
-    else:
-        pe = info['forwardPE']
-        
-    peg = info['pegRatio']
-    ps = info['priceToSalesTrailing12Months']
-    pb = info['priceToBook']
-    valueToEbitda = info['enterpriseToEbitda']
-    dividendYield = info['dividendYield']
+    eps = pd.to_numeric(financials_cache.loc[ticker_name, 'EPS'])    
+    pe = pd.to_numeric(financials_cache.loc[ticker_name, 'PE'])    
+    peg = pd.to_numeric(financials_cache.loc[ticker_name, 'PEG'])
+    ps = pd.to_numeric(financials_cache.loc[ticker_name, 'PS'])
+    pb = pd.to_numeric(financials_cache.loc[ticker_name, 'PB'])
+    valueToEbitda = pd.to_numeric(financials_cache.loc[ticker_name, 'VEBITDA'])
+    dividendYield = pd.to_numeric(financials_cache.loc[ticker_name, 'Dividend Yield'])
 
     TR = financials.iloc[:, 0].loc['Total Revenue']
     COGS = financials.iloc[:, 0].loc['Cost Of Revenue']
@@ -66,9 +65,9 @@ def load_financials(company_name, ticker_name,
 
     netMargin = netIncome / TR
 
-    beta = info['beta']
+    beta = pd.to_numeric(financials_cache.loc[ticker_name, 'Beta'])
 
-    bookValue = info['bookValue'] * info['sharesOutstanding']
+    bookValue = pd.to_numeric(financials_cache.loc[ticker_name, 'Book Value'])
 
     ROE = netIncome / bookValue
 
@@ -78,7 +77,7 @@ def load_financials(company_name, ticker_name,
 
     currentRatio = balance_sheet.iloc[:, 0].loc['Total Current Assets'] / balance_sheet.iloc[:, 0].loc['Total Current Liabilities']
 
-    industry = info['industry']
+    industry = financials_cache.loc[ticker_name, 'Industry']
     spreadsheet_industry = industry_lut[industry]
     
     pe_i = pe_industry.loc[spreadsheet_industry, 'Current PE'].item()
@@ -94,36 +93,36 @@ def load_financials(company_name, ticker_name,
 
     ROE_i = pbv_industry.loc[spreadsheet_industry, 'ROE'].item()
 
-    ticker_historical = ticker.history(  # or pdr.get_data_yahoo(...
-        # use "period" instead of start/end
-        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
-        # (optional, default is '1mo')
-        period = '1y',
-
-        # fetch data by interval (including intraday if period < 60 days)
-        # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
-        # (optional, default is '1d')
-        interval = '3mo',
-    )
-
-    start_price = ticker_historical['Open'].iloc[0]
-    end_price = ticker_historical['Close'].iloc[-1]
-
-    i = 1
-    
-    while math.isnan(start_price):
-        start_price = ticker_historical['Open'].iloc[i]
-        
-        i += 1
-
-    i = -2
-    
-    while math.isnan(end_price):
-        end_price = ticker_historical['Close'].iloc[i]
-        
-        i -= 1
-    
-    change = (end_price - start_price) / start_price
+##    ticker_historical = ticker.history(  # or pdr.get_data_yahoo(...
+##        # use "period" instead of start/end
+##        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+##        # (optional, default is '1mo')
+##        period = '1y',
+##
+##        # fetch data by interval (including intraday if period < 60 days)
+##        # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+##        # (optional, default is '1d')
+##        interval = '3mo',
+##    )
+##
+##    start_price = ticker_historical['Open'].iloc[0]
+##    end_price = ticker_historical['Close'].iloc[-1]
+##
+##    i = 1
+##    
+##    while math.isnan(start_price):
+##        start_price = ticker_historical['Open'].iloc[i]
+##        
+##        i += 1
+##
+##    i = -2
+##    
+##    while math.isnan(end_price):
+##        end_price = ticker_historical['Close'].iloc[i]
+##        
+##        i -= 1
+##    
+##    change = (end_price - start_price) / start_price
 
     # weighted average of how the stock performs relative to industry
     # more emphasis on ROE and margins, less on valuation ratios
@@ -158,29 +157,29 @@ def load_financials(company_name, ticker_name,
                         0.175*calculate_score_higher(grossMargin, gross_margin_i) + 0.175*calculate_score_higher(operatingMargin, operating_margin_i) + \
                         0.175*calculate_score_higher(netMargin, net_margin_i) + 0.225*calculate_score_higher(ROE, ROE_i)
 
-        print(pe)
-        print(peg)
-        print(ps)
-        print(pb)
-        print(valueToEbitda)
-        print(beta)
-        print(grossMargin)
-        print(operatingMargin)
-        print(netMargin)
-        print(ROE)
-
-        print(pe_i)
-        print(peg_i)
-        print(ps_i)
-        print(pb_i)
-        print(v_ebitda_i)
-        print(beta_i)
-        print(gross_margin_i)
-        print(operating_margin_i)
-        print(net_margin_i)
-        print(ROE_i)
+##        print(pe)
+##        print(peg)
+##        print(ps)
+##        print(pb)
+##        print(valueToEbitda)
+##        print(beta)
+##        print(grossMargin)
+##        print(operatingMargin)
+##        print(netMargin)
+##        print(ROE)
+##
+##        print(pe_i)
+##        print(peg_i)
+##        print(ps_i)
+##        print(pb_i)
+##        print(v_ebitda_i)
+##        print(beta_i)
+##        print(gross_margin_i)
+##        print(operating_margin_i)
+##        print(net_margin_i)
+##        print(ROE_i)
         
-        print(industry_score)
+##        print(industry_score)
 ##        if math.isnan(industry_score):
 ##            industry_score = 'NA'
 ##        else:
@@ -203,16 +202,33 @@ def load_financials(company_name, ticker_name,
             'dividendYield': beautify_percentage(dividendYield),
             'currentRatio': beautify_ratio(currentRatio),
             'ROE': beautify_percentage(ROE),
-            'return1y': beautify_percentage(change),
+            # 'return1y': beautify_percentage(change),
             'industryScore': industry_score
         }
 
-if __name__ == '__main__':
-    pe_industry = pd.read_excel('../data/pedata.xls', skiprows=7, index_col=0)
-    ps_industry = pd.read_excel('../data/psdata.xls', skiprows=7, index_col=0)
-    pbv_industry = pd.read_excel('../data/pbvdata.xls', skiprows=7, index_col=0)
-    vebtida_industry = pd.read_excel('../data/vebitda.xls', skiprows=8, index_col=0)
-    beta_industry = pd.read_excel('../data/betas.xls', skiprows=9, index_col=0, sheet_name='Industry Averages')
-    margin_industry = pd.read_excel('../data/margin.xls', skiprows=8, index_col=0)
+def get_financials_data(sector):
+    CONNECTIONS = 100
 
-    load_financials('Wendys', 'HTLD', pe_industry, ps_industry, pbv_industry, vebtida_industry, beta_industry, margin_industry)
+    financials_data = []
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=CONNECTIONS) as executor:
+        future_to_financials  = (executor.submit(load_financials, t['name'], t['ticker']) for t in stocks_dict[sector])
+    
+        for future in concurrent.futures.as_completed(future_to_financials):
+            try:
+                data = future.result()
+
+                financials_data.append(data)
+            except Exception as exc:
+                print(str(exc))
+                print('Error loading financials!')
+
+    sorted_financial_data = sorted(financials_data, key=lambda k: (float(k['industryScore']) if k['industryScore'] != 'NA' else -math.inf), reverse=True)
+
+    return sorted_financial_data
+
+if __name__ == '__main__':
+    tic = time.perf_counter()
+    get_financials_data('Consumer Discretionary')
+    toc = time.perf_counter()
+    print(toc - tic)

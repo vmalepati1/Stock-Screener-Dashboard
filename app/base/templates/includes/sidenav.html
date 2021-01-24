@@ -11,7 +11,12 @@
 			  <p>
 			  This is an administration dashboard meant to help you manage your portfolio within specific sectors.
 			  It provides tools that enable you to actively manage your watchlist, view the top gainers within your sector,
-			  see what equities are being purchased by hedge funds, view insider trading reports, and analyze financials.
+			  view which equities are being purchased by hedge funds, view insider trading reports, analyze financial data, 
+			  view DCF models of investments, and forecast price action using machine learning algorithms. Some of these
+			  features require that you first add some equities to your watchlist using the "Add symbol" button, and then 
+			  you will be able to use the allocations tab, which tells you the optimal weightings for your equities
+			  using a Monte Carlo simulation and historical data. The other tabs have drop downs in order to help you 
+			  pick certain stocks and sectors to better analyze them.
 			  </p>
 		   </div>
 		</div>
@@ -32,14 +37,6 @@
       <div class="collapse navbar-collapse" id="sidenav-collapse-main">
         <!-- Nav items -->
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link {% if 'profile' in segment %} active {% endif %}" 
-               href="/profile">
-              <i class="ni ni-single-02 text-yellow"></i>
-              <span class="nav-link-text">Profile</span>
-            </a>
-          </li>
-		  
 		  <li class="nav-item">
             <a class="nav-link {% if 'watchlist' in segment %} active {% endif %}" 
                href="/watchlist/1d">
@@ -103,6 +100,14 @@
               <span class="nav-link-text">Forecasts</span>
             </a>
           </li>
+		  
+		  <li class="nav-item">
+            <a class="nav-link {% if 'profile' in segment %} active {% endif %}" 
+               href="/profile">
+              <i class="ni ni-single-02 text-orange"></i>
+              <span class="nav-link-text">Profile</span>
+            </a>
+          </li>
 
 		  <li class="nav-item">
 			<a class="nav-link" href="{{ url_for('base_blueprint.logout') }}">
@@ -123,7 +128,7 @@
           <li class="nav-item">
             <a class="nav-link" data-toggle="modal" data-target="#modal-default">
               <i class="ni ni-spaceship"></i>
-              <span class="nav-link-text">Product Information</span>
+              <span class="nav-link-text">Dashboard Help</span>
             </a>
           </li>
         </ul>

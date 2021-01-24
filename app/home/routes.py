@@ -28,51 +28,7 @@ import math
 @blueprint.route('/index')
 @login_required
 def index():
-    return redirect(url_for('home_blueprint.edit_profile'))
-
-@blueprint.route('/profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    edit_form = EditProfileForm(request.form)
-    
-    if 'save' in request.form:
-        if edit_form.validate():
-            current_user.username = request.form['username']
-            current_user.email = request.form['email']
-            current_user.first_name = request.form['first_name']
-            current_user.last_name = request.form['last_name']
-            current_user.sector = request.form['sector']
-
-            db.session.commit()
-        
-            return render_template('profile.html', segment='profile', success='Changes successfully saved!', form=edit_form, sector_select_data=sectors)
-        else:
-            return render_template('profile.html', segment='profile', msg='Failed to save changes! Please check below.', form=edit_form, sector_select_data=sectors)
-    else:
-        return render_template('profile.html', segment='profile', form=edit_form, sector_select_data=sectors)
-
-@blueprint.route('/top_gainers/<string:sector>/<string:time_frame>',  methods=['GET', 'POST'])
-@login_required
-def top_gainers(sector, time_frame):
-    if sector not in [s['name'] for s in sectors] \
-       or time_frame not in [tf['name'] for tf in time_frames]:
-        return render_template('page-404.html'), 404
-    
-    SPDR_ETF = SPDR_ETFs[sector]
-    price, change = get_price_and_return(SPDR_ETF, time_frame)
-    gainers = get_top_gainers(sector, time_frame)
-
-    if 'add' in request.form:
-        current_user.watchlist = add_to_watchlist(current_user.watchlist, request.form['add'])
-        
-        db.session.commit()
-    elif 'remove' in request.form:
-        current_user.watchlist = remove_from_watchlist(current_user.watchlist, request.form['remove'])
-
-        db.session.commit()
-    
-    return render_template('top_gainers.html', segment='gainers', sector_select_data=sectors, time_frame_select_data=time_frames, sector=sector,
-                                   time_frame=time_frame, SPDR_ETF=SPDR_ETF, SPDR_price=price, SPDR_change=change, gainers=gainers)
+    return redirect('watchlist/1d')
 
 @blueprint.route('/watchlist/<string:time_frame>',  methods=['GET', 'POST'])
 @login_required
@@ -96,6 +52,30 @@ def watchlist(time_frame):
     
     return render_template('watchlist.html', segment='watchlist', time_frame_select_data=time_frames, stocks_list=stocks, time_frame=time_frame,
                            watchlist_stocks=watchlist_stocks)
+
+
+@blueprint.route('/top_gainers/<string:sector>/<string:time_frame>',  methods=['GET', 'POST'])
+@login_required
+def top_gainers(sector, time_frame):
+    if sector not in [s['name'] for s in sectors] \
+       or time_frame not in [tf['name'] for tf in time_frames]:
+        return render_template('page-404.html'), 404
+    
+    SPDR_ETF = SPDR_ETFs[sector]
+    price, change = get_price_and_return(SPDR_ETF, time_frame)
+    gainers = get_top_gainers(sector, time_frame)
+
+    if 'add' in request.form:
+        current_user.watchlist = add_to_watchlist(current_user.watchlist, request.form['add'])
+        
+        db.session.commit()
+    elif 'remove' in request.form:
+        current_user.watchlist = remove_from_watchlist(current_user.watchlist, request.form['remove'])
+
+        db.session.commit()
+    
+    return render_template('top_gainers.html', segment='gainers', sector_select_data=sectors, time_frame_select_data=time_frames, sector=sector,
+                                   time_frame=time_frame, SPDR_ETF=SPDR_ETF, SPDR_price=price, SPDR_change=change, gainers=gainers)
 
 @blueprint.route('/allocations')
 @login_required
@@ -275,7 +255,28 @@ def forecasts(ticker):
                                    msg='Unfortunately, there is insufficient price action data to generate a forecast for this stock. Please select another symbol.')
     else:
         return render_template('forecasts.html', segment='forecasts', stocks_list=stocks, ticker=ticker)
+
+@blueprint.route('/profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    edit_form = EditProfileForm(request.form)
     
+    if 'save' in request.form:
+        if edit_form.validate():
+            current_user.username = request.form['username']
+            current_user.email = request.form['email']
+            current_user.first_name = request.form['first_name']
+            current_user.last_name = request.form['last_name']
+            current_user.sector = request.form['sector']
+
+            db.session.commit()
+        
+            return render_template('profile.html', segment='profile', success='Changes successfully saved!', form=edit_form, sector_select_data=sectors)
+        else:
+            return render_template('profile.html', segment='profile', msg='Failed to save changes! Please check below.', form=edit_form, sector_select_data=sectors)
+    else:
+        return render_template('profile.html', segment='profile', form=edit_form, sector_select_data=sectors)
+
 @blueprint.route('/<template>')
 @login_required
 def route_template(template):
