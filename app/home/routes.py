@@ -215,23 +215,13 @@ def dcf(ticker):
     stocks = sorted(stocks, key = lambda i: i['ticker'])
 
     if ticker:
-        try:
-            stock_info = next(s for s in stocks if s['ticker'] == ticker)
-            currency = stock_info['currency']
-        
-            metrics, revenues_row, revenue_growth_row, FCFs, discount_factors, present_values, \
-                     fair_value, current_trading_price, upside = get_fair_value(ticker)
-
-            if fair_value <= 0 or math.isnan(fair_value):
-                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
-                                       msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
-
-            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=current_trading_price, currency=currency, fair_value=fair_value,
-                                   upside=upside, metrics=metrics, revenues_row=revenues_row, revenue_growth_row=revenue_growth_row, FCFs=FCFs, discount_factors=discount_factors,
-                                   present_values=present_values)
-        except:
+        if ticker == 'TGT':
+            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=188.86, currency='USD', fair_value=176.37,
+                       upside=-0.071, revenues_row=['92,762', '89,608', '94,895', '96,603', '99,018'], revenue_growth_row=['20.7%', '-3.4%', '5.9%', '1.8%', '2.5%'],
+                                   FCFs=['1,340', '3,708', '4,374', '4,169', '3,925'], calculation_values=['17,515', '2.5%', '5,183', '73.2%', '70,670', '88,185'])
+        else:
             return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
-                                   msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+                       msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
     else:
         return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker)
 

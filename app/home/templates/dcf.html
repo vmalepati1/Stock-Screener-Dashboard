@@ -130,58 +130,19 @@
 
 							</div>
 
-							<div class="row align-items-center justify-content-center mt-4">
-								<table class="table w-50 align-items-center table-flush">
-								  <thead class="thead-light">
-									<tr>
-									  <th scope="col" class="sort" data-sort="metric">Metric</th>
-									  <th scope="col" class="sort" data-sort="assumption">Assumption</th>
-									</tr>
-								  </thead>
-								  <tbody id="metricsContainer" class="list">
-									<tr>
-										<td class="metric">Revenue growth rate</td>
-										<td class="assumption text-right">{{ (100*metrics[0])|round(2) }}%</td>
-									</tr>
-
-									<tr>
-										<td class="metric">Cost of debt</td>
-										<td class="assumption text-right">{{ (100*metrics[1])|round(2) }}%</td>
-									</tr>
-
-									<tr>
-										<td class="metric">Cost of equity</td>
-										<td class="assumption text-right">{{ (100*metrics[2])|round(2) }}%</td>
-									</tr>
-
-									<tr>
-										<td class="metric">WACC</td>
-										<td class="assumption text-right">{{ (100*metrics[3])|round(2) }}%</td>
-									</tr>
-
-									<tr>
-										<td class="metric">Perpetual growth</td>
-										<td class="assumption text-right">{{ (100*metrics[4])|round(2) }}%</td>
-									</tr>
-								  </tbody>
-								</table>
-							  </div>
-
 							  <div class="table-responsive align-items-center justify-content-center mt-4">
 								<table class="table align-items-center table-flush">
 								  <thead class="thead-light">
 									<tr>
-									  <th scope="col" class="sort">Fiscal Period</th>
-									  <th scope="col" class="sort">2019A</th>
-									  <th scope="col" class="sort">2020E</th>
-									  <th scope="col" class="sort">2021E</th>
-									  <th scope="col" class="sort">2022E</th>
-									  <th scope="col" class="sort">2023E</th>
-									  <th scope="col" class="sort">2024E</th>
-									  <th scope="col" class="sort">Terminal Value</th>
+									  <th scope="col" class="sort">Fiscal Period (USD in millions)</th>
+									  <th scope="col" class="sort text-right">Feb-21</th>
+									  <th scope="col" class="sort text-right">Feb-22</th>
+									  <th scope="col" class="sort text-right">Feb-23</th>
+									  <th scope="col" class="sort text-right">Feb-24</th>
+									  <th scope="col" class="sort text-right">Feb-25</th>
 									</tr>
 								  </thead>
-								  <tbody id="calculationsContainer" class="list">
+								  <tbody id="financialsContainer" class="list">
 									<tr>
 										<td>Total revenue</td>
 										{% for r in revenues_row %}
@@ -193,7 +154,7 @@
 									<tr>
 										<td>Revenue growth rate</td>
 										{% for rg in revenue_growth_row %}
-											<td class="text-right">{{ (100*rg)|round(2) }}%</td>
+											<td class="text-right">{{ rg }}</td>
 										{% endfor %}
 										<td></td>
 									</tr>
@@ -204,21 +165,47 @@
 											<td class="text-right">{{ fcf }}</td>
 										{% endfor %}
 									</tr>
-									
+								  </tbody>
+								</table>
+							  </div>
+							  
+							  <div class="row align-items-center justify-content-center mt-4">
+								<table class="table w-50 align-items-center table-flush">
+								  <thead class="thead-light">
 									<tr>
-										<td>Discount factor</td>
-										<td></td>
-										{% for df in discount_factors %}
-											<td class="text-right">{{ df|round(3) }}</td>
-										{% endfor %}
+									  <th scope="col" class="sort" data-sort="ev-calculation">EV Calculation</th>
+									  <th scope="col" class="sort text-right" data-sort="median">Median</th>
+									</tr>
+								  </thead>
+								  <tbody id="calculationsContainer" class="list">
+									<tr>
+										<td class="ev-calculation">(A) PV of Discrete Cash Flows</td>
+										<td class="median text-right">{{calculation_values[0]}}</td>
+									</tr>
+
+									<tr>
+										<td class="ev-calculation">Selected Perpetuity Growth Rate</td>
+										<td class="median text-right">{{calculation_values[1]}}</td>
 									</tr>
 									
 									<tr>
-										<td>PV</td>
-										<td></td>
-										{% for pv in present_values %}
-											<td class="text-right">{{ pv }}</td>
-										{% endfor %}
+										<td class="ev-calculation">Terminal Free Cash Flow</td>
+										<td class="median text-right">{{calculation_values[2]}}</td>
+									</tr>
+									
+									<tr>
+										<td class="ev-calculation">Terminal Discount Factor</td>
+										<td class="median text-right">{{calculation_values[3]}}</td>
+									</tr>
+									
+									<tr>
+										<td class="ev-calculation">(B) PV of Terminal Value</td>
+										<td class="median text-right">{{calculation_values[4]}}</td>
+									</tr>
+									
+									<tr>
+										<td class="ev-calculation">(A + B) Enterprise Value</td>
+										<td class="median text-right">{{calculation_values[5]}}</td>
 									</tr>
 								  </tbody>
 								</table>
