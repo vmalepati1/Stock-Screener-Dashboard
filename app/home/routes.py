@@ -17,7 +17,7 @@ from app.home.finance.allocations import get_allocations_and_stats
 from app.home.finance.insider_trading_data import get_insider_trading_data
 from app.home.finance.hedge_fund_data import *
 from app.home.finance.financials_data import get_financials_data
-from app.home.finance.dcf_calculator import get_fair_value
+from app.home.finance.dcf_calculator import get_dcf_data
 from app.home.finance.forecast_data import get_forecast_data
 from app.home.finance.rankings_cache import rankings_cache
 from flask import render_template, redirect, url_for, request
@@ -215,11 +215,21 @@ def dcf(ticker):
     stocks = sorted(stocks, key = lambda i: i['ticker'])
 
     if ticker:
-        if ticker == 'TGT':
-            return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker, current_price=188.86, currency='USD', fair_value=176.37,
-                       upside=-0.071, revenues_row=['92,762', '89,608', '94,895', '96,603', '99,018'], revenue_growth_row=['20.7%', '-3.4%', '5.9%', '1.8%', '2.5%'],
-                                   FCFs=['1,340', '3,708', '4,374', '4,169', '3,925'], calculation_values=['17,515', '2.5%', '5,183', '73.2%', '70,670', '88,185'])
-        else:
+        try:
+            is_successful, fair_value, current_price, upside, FCFs, revenues_row, revenue_growth_row, calculation_values = get_dcf_data(ticker)
+
+            if is_successful:
+                stock_info = next(s for s in stocks if s['ticker'] == ticker)
+                currency = stock_info['currency']
+            
+                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
+                                       current_price=current_price, currency=currency, fair_value=fair_value,
+                                       upside=upside, revenues_row=revenues_row, revenue_growth_row=revenue_growth_row,
+                                       FCFs=FCFs, calculation_values=calculation_values)
+            else:
+                return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
+                       msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
+        except:
             return render_template('dcf.html', segment='dcf', stocks_list=stocks, ticker=ticker,
                        msg='Unfortunately, there are insufficient analyst projections to develop a DCF model for this stock. Please select another symbol.')
     else:

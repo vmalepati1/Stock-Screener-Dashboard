@@ -60,7 +60,7 @@
 										  <div class="row">
 											<div class="col">
 											  <h5 class="card-title text-uppercase text-muted mb-0">Current Price</h5>
-											  <span class="text-info mr-2">{{ current_price|round(2) }} {{ currency }}</span>
+											  <span class="text-info mr-2">{{ current_price }} {{ currency }}</span>
 											</div>
 											<div class="col-auto">
 											  <div class="icon icon-shape bg-info text-white rounded-circle shadow">
@@ -79,9 +79,9 @@
 											<div class="col">
 											  <h5 class="card-title text-uppercase text-muted mb-0">Fair Value</h5>
 											  {% if upside < 0 %}
-												<span class="text-warning mr-2">{{ fair_value|round(2) }} {{ currency }}</span>
+												<span class="text-warning mr-2">{{ fair_value }} {{ currency }}</span>
 											  {% else %}
-												<span class="text-success mr-2">{{ fair_value|round(2) }} {{ currency }}</span>
+												<span class="text-success mr-2">{{ fair_value }} {{ currency }}</span>
 											  {% endif %}
 											</div>
 											<div class="col-auto">
