@@ -130,7 +130,7 @@
 
 import xlrd
 
-wb = xlrd.open_workbook('data/dcf_data.xlsx')
+wb = xlrd.open_workbook('data/dcf_data.xls')
 sheet = wb.sheet_by_index(0)
 
 def get_dcf_data(ticker_name):
